@@ -1,75 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>SmartBunks - Attendance Calculator</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartBunks</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      flex: 1 1 300px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+
+    input[type="text"], input[type="date"], input[type="number"] {
+      width: 100%;
+      padding: 6px;
+      margin: 6px 0;
+    }
+
+    input[type="file"] {
+      margin-top: 6px;
+    }
+
+    .submit-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .submit-btn:hover {
+      background: #218838;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+    }
+  </style>
 </head>
-<body class="bg-gray-100 p-4">
+<body>
+  <h1>SmartBunks - Attendance Calculator</h1>
+  <form action="/process" method="post" enctype="multipart/form-data">
+    <div class="container">
+      <div class="card">
+        <h3>General Info</h3>
+        <label>Start Date:</label>
+        <input type="date" name="start_date" required />
+        <label>End Date:</label>
+        <input type="date" name="end_date" required />
+        <label>Required Attendance %:</label>
+        <input type="number" name="required_attendance" min="1" max="100" value="75" required />
+        <label>Holiday File (optional):</label>
+        <input type="file" name="holiday_file" accept=".xlsx" />
+      </div>
 
-    <h1 class="text-3xl font-bold text-center mb-6">SmartBunks - Attendance Calculator</h1>
-
-    <form action="/" method="post" enctype="multipart/form-data">
-        <div class="flex flex-col lg:flex-row gap-6 justify-center items-start">
-
-            <!-- Left Card: General Inputs -->
-            <div class="bg-white rounded-lg shadow-lg p-6 w-full lg:w-1/2">
-                <h2 class="text-xl font-semibold mb-4">General Inputs</h2>
-
-                <div class="mb-4">
-                    <label for="schedule_file" class="block mb-1">Upload Schedule Excel File:</label>
-                    <input type="file" id="schedule_file" name="schedule_file" accept=".xlsx" class="w-full p-2 border rounded" required>
-                </div>
-
-                <div class="mb-4">
-                    <label for="holiday_file" class="block mb-1">Upload Holiday Excel File (optional):</label>
-                    <input type="file" id="holiday_file" name="holiday_file" accept=".xlsx" class="w-full p-2 border rounded">
-                    <p class="text-sm text-gray-500 mt-1">If not uploaded, default holidays will be used.</p>
-                    <a href="{{ url_for('static', filename='data/holiday.xlsx') }}" download class="text-blue-600 underline text-sm mt-1 inline-block">Download default holiday list</a>
-                </div>
-
-                <div class="mb-4">
-                    <label for="start_date" class="block mb-1">Start Date:</label>
-                    <input type="date" id="start_date" name="start_date" class="w-full p-2 border rounded" required>
-                </div>
-
-                <div class="mb-4">
-                    <label for="end_date" class="block mb-1">End Date:</label>
-                    <input type="date" id="end_date" name="end_date" class="w-full p-2 border rounded" required>
-                </div>
-
-                <div class="mb-4">
-                    <label for="target_percentage" class="block mb-1">Target Attendance Percentage:</label>
-                    <input type="number" id="target_percentage" name="target_percentage" placeholder="e.g., 75" class="w-full p-2 border rounded" required>
-                </div>
-            </div>
-
-            <!-- Right Card: Timetable Inputs -->
-            <div class="bg-white rounded-lg shadow-lg p-6 w-full lg:w-1/2">
-                <h2 class="text-xl font-semibold mb-4">Enter Your Weekly Timetable</h2>
-
-                {% for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] %}
-                    <div class="mb-4">
-                        <label for="{{ day.lower() }}" class="block mb-1">{{ day }}:</label>
-                        <input type="text" id="{{ day.lower() }}" name="{{ day.lower() }}" placeholder="e.g., Math, Physics, Chemistry" class="w-full p-2 border rounded">
-                    </div>
-                {% endfor %}
-            </div>
-
-        </div>
-
-        <div class="text-center mt-6">
-            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">Submit</button>
-        </div>
-    </form>
-
-    {% if tables %}
-    <div class="mt-10 bg-white shadow-md rounded-lg overflow-x-auto p-6">
-        <h2 class="text-2xl font-semibold mb-4 text-center">Attendance Report</h2>
-        {{ tables|safe }}
+      <div class="card">
+        <h3>Weekly Timetable</h3>
+        <label>Enter subjects for each weekday (comma separated):</label>
+        <label>Monday:</label>
+        <input type="text" name="monday[]" placeholder="e.g., Math, Physics, CS" />
+        <label>Tuesday:</label>
+        <input type="text" name="tuesday[]" />
+        <label>Wednesday:</label>
+        <input type="text" name="wednesday[]" />
+        <label>Thursday:</label>
+        <input type="text" name="thursday[]" />
+        <label>Friday:</label>
+        <input type="text" name="friday[]" />
+      </div>
     </div>
-    {% endif %}
+    <button class="submit-btn" type="submit">Calculate Attendance</button>
+  </form>
 
+  {% if result %}
+    <div class="card" style="margin-top: 30px;">
+      <h3>Attendance Recommendation</h3>
+      {{ result|safe }}
+    </div>
+  {% endif %}
 </body>
 </html>
