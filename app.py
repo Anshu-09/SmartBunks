@@ -1,68 +1,62 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request
 import pandas as pd
-from datetime import datetime, timedelta
 import os
 
 app = Flask(__name__)
 
-# Path to default holiday file
-DEFAULT_HOLIDAY_FILE = "default_holidays.xlsx"
-
-def normalize_subject(subj):
-    return subj.strip().lower()
-
-def read_holidays(holiday_file):
-    if holiday_file:
-        holiday_df = pd.read_excel(holiday_file)
-    else:
-        holiday_df = pd.read_excel(DEFAULT_HOLIDAY_FILE)
-
-    return set(holiday_df['Date'].dt.date)
-
-def generate_schedule(form_data):
-    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-    schedule = {}
-    for day in days:
-        subjects = form_data.get(day)
-        if subjects:
-            subject_list = [normalize_subject(s) for s in subjects.split(',') if s.strip()]
-            schedule[day] = subject_list
-    return schedule
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    result = None
+    error = None
+
     if request.method == 'POST':
-        start_date = datetime.strptime(request.form['start_date'], '%Y-%m-%d').date()
-        end_date = datetime.strptime(request.form['end_date'], '%Y-%m-%d').date()
+        try:
+            start_date = request.form.get('start_date')
+            end_date = request.form.get('end_date')
+            holiday_file = request.files.get('holiday_file')
 
-        # Read schedule from form
-        schedule = generate_schedule(request.form)
+            # Load default holiday file if none is uploaded
+            if holiday_file and holiday_file.filename.endswith('.xlsx'):
+                holiday_df = pd.read_excel(holiday_file)
+            else:
+                default_path = os.path.join('static', 'data', 'default_holidays.xlsx')
+                holiday_df = pd.read_excel(default_path)
 
-        # Read holidays
-        holiday_file = request.files.get('holiday_file')
-        holidays = read_holidays(holiday_file)
+            # Count total working days
+            date_range = pd.date_range(start=start_date, end=end_date, freq='D')
+            weekdays = date_range[date_range.dayofweek < 5]  # Monday to Friday
 
-        # Initialize subject counts
-        subject_count = {}
-        current_date = start_date
+            # Remove holidays from working days
+            holidays = pd.to_datetime(holiday_df['Date'], errors='coerce')
+            working_days = [day for day in weekdays if day not in holidays]
 
-        while current_date <= end_date:
-            if current_date not in holidays:
-                weekday = current_date.strftime('%A')
-                subjects_today = schedule.get(weekday, [])
-                for subj in subjects_today:
-                    subject_count[subj] = subject_count.get(subj, 0) + 1
-            current_date += timedelta(days=1)
+            # Subject pattern based on weekdays (Mon–Fri)
+            weekday_subjects = {
+                0: "Math",       # Monday
+                1: "Physics",    # Tuesday
+                2: "Chemistry",  # Wednesday
+                3: "English",    # Thursday
+                4: "Computer"    # Friday
+            }
 
-        # Prepare result as DataFrame
-        result_df = pd.DataFrame([
-            {'Subject': subject.title(), 'Total Days': count}
-            for subject, count in subject_count.items()
-        ]).sort_values(by='Subject')
+            # Tally attendance by subject
+            subject_counts = {}
+            for day in working_days:
+                subject = weekday_subjects.get(day.weekday())
+                if subject:
+                    # Normalize similar subject names
+                    subject = subject.strip().lower()
+                    subject = subject.replace("maths", "math")
+                    subject_counts[subject] = subject_counts.get(subject, 0) + 1
 
-        return render_template('index.html', table=result_df.to_html(classes='table table-bordered table-striped', index=False), submitted=True)
+            # Convert keys back to title-case
+            formatted_result = {subj.title(): count for subj, count in subject_counts.items()}
+            result = formatted_result
 
-    return render_template('index.html', submitted=False)
+        except Exception as e:
+            error = f"An error occurred: {str(e)}"
+
+    return render_template('index.html', result=result, error=error)
 
 if __name__ == '__main__':
     app.run(debug=True)
