@@ -2,96 +2,150 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartBunks</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
-            padding: 30px;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            margin: 0;
+            padding: 20px;
         }
 
-        .container-flex {
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .container {
             display: flex;
             flex-wrap: wrap;
-            justify-content: space-between;
+            gap: 20px;
+            justify-content: center;
         }
 
         .card {
-            flex: 1;
-            min-width: 300px;
-            margin: 10px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 450px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
+        }
+
+        input[type="date"],
+        input[type="number"],
+        input[type="file"],
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
         }
 
         table {
-            margin-top: 30px;
+            width: 100%;
+            border-collapse: collapse;
         }
 
-        @media (max-width: 768px) {
-            .container-flex {
-                flex-direction: column;
+        th, td {
+            padding: 6px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+
+        th {
+            background: #f8fafc;
+        }
+
+        button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #2563eb;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                flex-wrap: nowrap;
             }
         }
 
-        textarea {
-            resize: vertical;
+        .result-container {
+            margin-top: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        .form-group small {
-            font-size: 0.8rem;
+        .result-table {
+            overflow-x: auto;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2 class="mb-4 text-center">SmartBunks – Attendance Calculator</h2>
-        <form action="/upload" method="post" enctype="multipart/form-data">
-            <div class="container-flex">
-                <!-- Left: Holidays and Dates -->
-                <div class="card p-3">
-                    <h5>Upload Holiday File & Set Date Range</h5>
-                    <div class="form-group">
-                        <label for="start_date">Start Date:</label>
-                        <input type="date" class="form-control" name="start_date" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="end_date">End Date:</label>
-                        <input type="date" class="form-control" name="end_date" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="holidays">Holidays File (.xlsx):</label>
-                        <input type="file" class="form-control-file" name="holidays" accept=".xlsx">
-                        <small>If not uploaded, default holidays.xlsx will be used.</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="threshold">Attendance Threshold (%):</label>
-                        <input type="number" class="form-control" name="threshold" value="75" required>
-                    </div>
-                </div>
+    <h1>SmartBunks Attendance Analyzer</h1>
+    <form action="/process" method="post" enctype="multipart/form-data">
+        <div class="container">
+            <div class="card">
+                <label for="holiday_sheet">Holiday File (Default Editable):</label>
+                <input type="file" id="holiday_sheet" name="holiday_sheet">
 
-                <!-- Right: Timetable -->
-                <div class="card p-3">
-                    <h5>Enter Weekly Timetable</h5>
-                    {% for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'] %}
-                        <div class="form-group">
-                            <label>{{ day }}:</label>
-                            <textarea name="schedule_{{ day }}" class="form-control" rows="2" placeholder="e.g. maths, physics, cs"></textarea>
-                        </div>
+                <label for="start_date">Start Date:</label>
+                <input type="date" id="start_date" name="start_date" required>
+
+                <label for="end_date">End Date:</label>
+                <input type="date" id="end_date" name="end_date" required>
+
+                <label for="threshold">Minimum Required Attendance (%):</label>
+                <input type="number" id="threshold" name="threshold" value="75" min="1" max="100">
+            </div>
+
+            <div class="card">
+                <label>Weekly Timetable</label>
+                <table>
+                    <tr>
+                        <th>Day</th>
+                        <th>Subjects (comma separated)</th>
+                    </tr>
+                    {% for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] %}
+                    <tr>
+                        <td>{{ day }}</td>
+                        <td><input type="text" name="{{ day.lower() }}" placeholder="eg. Maths, Physics"></td>
+                    </tr>
                     {% endfor %}
-                </div>
-            </div>
-
-            <div class="text-center">
-                <button type="submit" class="btn btn-primary mt-3">Submit</button>
-            </div>
-        </form>
-
-        {% if result %}
-        <div class="mt-5">
-            <h4>Attendance Summary:</h4>
-            <div class="table-responsive">
-                {{ result|safe }}
+                </table>
             </div>
         </div>
-        {% endif %}
+
+        <div style="text-align:center; margin-top: 20px;">
+            <button type="submit">Analyse Attendance</button>
+        </div>
+    </form>
+
+    {% if table %}
+    <div class="result-container">
+        <h2 style="text-align:center;">Analysis Result</h2>
+        <div class="result-table">
+            {{ table | safe }}
+        </div>
     </div>
+    {% endif %}
 </body>
 </html>
