@@ -45,7 +45,7 @@ def upload_files():
     # Calculate effective weekdays
     effective_weekdays = {
         day: max(0, weekday_counts.get(day, 0) - weekday_holiday_count.get(day, 0))
-        for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+        for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday','Saturday']
     }
 
     # Count subject occurrences per weekday
