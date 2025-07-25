@@ -1,145 +1,75 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>SmartBunks Attendance Calculator</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    />
-    <style>
-        body {
-            background-color: #f4f6f8;
-            font-size: 15px;
-        }
-
-        .container {
-            margin-top: 30px;
-            max-width: 1000px;
-        }
-
-        .card {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        textarea {
-            resize: none;
-        }
-
-        label {
-            font-weight: 500;
-        }
-
-        h2, h5 {
-            font-weight: bold;
-        }
-
-        .form-section {
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        @media (max-width: 768px) {
-            body {
-                font-size: 14px;
-            }
-
-            .card {
-                padding: 15px;
-            }
-
-            h2 {
-                font-size: 22px;
-            }
-
-            h5 {
-                font-size: 18px;
-            }
-
-            .form-group label {
-                font-size: 14px;
-            }
-
-            .btn {
-                width: 100%;
-            }
-        }
-    </style>
+    <meta charset="UTF-8">
+    <title>SmartBunks - Attendance Calculator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="container">
-        <h2 class="text-center mb-4">SmartBunks Attendance Calculator</h2>
-        <form action="/upload" method="post" enctype="multipart/form-data">
-            <div class="row">
-                <!-- Left card -->
-                <div class="col-md-6 mb-3">
-                    <div class="card form-section">
-                        <h5 class="mb-3">Basic Info</h5>
-                        <div class="form-group">
-                            <label for="start_date">Start Date</label>
-                            <input type="date" class="form-control" id="start_date" name="start_date" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="end_date">End Date</label>
-                            <input type="date" class="form-control" id="end_date" name="end_date" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="threshold">Attendance Threshold (%)</label>
-                            <input type="number" class="form-control" id="threshold" name="threshold" min="0" max="100" value="75" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Upload Holidays Excel File</label>
-                            <input type="file" class="form-control-file" name="holidays" required>
-                        </div>
-                    </div>
+<body class="bg-gray-100 p-4">
+
+    <h1 class="text-3xl font-bold text-center mb-6">SmartBunks - Attendance Calculator</h1>
+
+    <form action="/" method="post" enctype="multipart/form-data">
+        <div class="flex flex-col lg:flex-row gap-6 justify-center items-start">
+
+            <!-- Left Card: General Inputs -->
+            <div class="bg-white rounded-lg shadow-lg p-6 w-full lg:w-1/2">
+                <h2 class="text-xl font-semibold mb-4">General Inputs</h2>
+
+                <div class="mb-4">
+                    <label for="schedule_file" class="block mb-1">Upload Schedule Excel File:</label>
+                    <input type="file" id="schedule_file" name="schedule_file" accept=".xlsx" class="w-full p-2 border rounded" required>
                 </div>
 
-                <!-- Right card -->
-                <div class="col-md-6 mb-3">
-                    <div class="card form-section">
-                        <h5 class="mb-3">Weekly Timetable</h5>
-                        <div class="form-group">
-                            <label for="schedule_Monday">Monday</label>
-                            <textarea class="form-control" name="schedule_Monday" rows="1" placeholder="e.g., Math, Physics"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="schedule_Tuesday">Tuesday</label>
-                            <textarea class="form-control" name="schedule_Tuesday" rows="1" placeholder="e.g., English, Chemistry"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="schedule_Wednesday">Wednesday</label>
-                            <textarea class="form-control" name="schedule_Wednesday" rows="1" placeholder="e.g., Biology, Lab"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="schedule_Thursday">Thursday</label>
-                            <textarea class="form-control" name="schedule_Thursday" rows="1" placeholder="e.g., Math, CS Lab"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="schedule_Friday">Friday</label>
-                            <textarea class="form-control" name="schedule_Friday" rows="1" placeholder="e.g., Physics, English"></textarea>
-                        </div>
-                        <div class="form-group">
-                        <label for="schedule_Saturday">Saturday</label>
-                         <textarea class="form-control" name="schedule_Saturday" rows="1" placeholder="e.g., Workshop, Seminar"></textarea>
-                        </div>
+                <div class="mb-4">
+                    <label for="holiday_file" class="block mb-1">Upload Holiday Excel File (optional):</label>
+                    <input type="file" id="holiday_file" name="holiday_file" accept=".xlsx" class="w-full p-2 border rounded">
+                    <p class="text-sm text-gray-500 mt-1">If not uploaded, default holidays will be used.</p>
+                    <a href="{{ url_for('static', filename='data/holiday.xlsx') }}" download class="text-blue-600 underline text-sm mt-1 inline-block">Download default holiday list</a>
+                </div>
 
-                    </div>
+                <div class="mb-4">
+                    <label for="start_date" class="block mb-1">Start Date:</label>
+                    <input type="date" id="start_date" name="start_date" class="w-full p-2 border rounded" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="end_date" class="block mb-1">End Date:</label>
+                    <input type="date" id="end_date" name="end_date" class="w-full p-2 border rounded" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="target_percentage" class="block mb-1">Target Attendance Percentage:</label>
+                    <input type="number" id="target_percentage" name="target_percentage" placeholder="e.g., 75" class="w-full p-2 border rounded" required>
                 </div>
             </div>
 
-            <div class="text-center mb-4">
-                <button type="submit" class="btn btn-primary px-4">Calculate Attendance</button>
-            </div>
-        </form>
+            <!-- Right Card: Timetable Inputs -->
+            <div class="bg-white rounded-lg shadow-lg p-6 w-full lg:w-1/2">
+                <h2 class="text-xl font-semibold mb-4">Enter Your Weekly Timetable</h2>
 
-        {% if result %}
-        <div class="card">
-            <h5 class="mb-3">Attendance Summary</h5>
-            {{ result|safe }}
+                {% for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] %}
+                    <div class="mb-4">
+                        <label for="{{ day.lower() }}" class="block mb-1">{{ day }}:</label>
+                        <input type="text" id="{{ day.lower() }}" name="{{ day.lower() }}" placeholder="e.g., Math, Physics, Chemistry" class="w-full p-2 border rounded">
+                    </div>
+                {% endfor %}
+            </div>
+
         </div>
-        {% endif %}
+
+        <div class="text-center mt-6">
+            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">Submit</button>
+        </div>
+    </form>
+
+    {% if tables %}
+    <div class="mt-10 bg-white shadow-md rounded-lg overflow-x-auto p-6">
+        <h2 class="text-2xl font-semibold mb-4 text-center">Attendance Report</h2>
+        {{ tables|safe }}
     </div>
+    {% endif %}
+
 </body>
 </html>

@@ -1,90 +1,87 @@
+import os
 from flask import Flask, render_template, request
 import pandas as pd
-import numpy as np
 from datetime import datetime
-import os
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-@app.route('/')
+# Folder to store uploaded files temporarily
+UPLOAD_FOLDER = 'uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Route for homepage and form submission
+@app.route("/", methods=["GET", "POST"])
 def index():
-    return render_template('index.html', result=None)
+    if request.method == "POST":
+        # Get form data
+        schedule_file = request.files["schedule_file"]
+        holiday_file = request.files.get("holiday_file")
+        start_date = request.form.get("start_date")
+        end_date = request.form.get("end_date")
+        target_percentage = float(request.form.get("target_percentage", 75))
 
-@app.route('/upload', methods=['POST'])
-def upload_files():
-    start_date = request.form['start_date']
-    end_date = request.form['end_date']
+        # Save schedule file
+        schedule_path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(schedule_file.filename))
+        schedule_file.save(schedule_path)
 
-    # Read schedule from form input instead of Excel
-    schedule_df = {}
-    for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']:
-        subjects_str = request.form.get(f'schedule_{day}', '')
-        subjects = [s.strip() for s in subjects_str.split(',') if s.strip()]
-        schedule_df[day] = subjects
+        # Use uploaded holiday file or default one
+        if holiday_file and holiday_file.filename != "":
+            holiday_path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(holiday_file.filename))
+            holiday_file.save(holiday_path)
+        else:
+            holiday_path = os.path.join("static", "data", "holiday.xlsx")
 
-    holidays_file = request.files['holidays']
+        # Read Excel files
+        try:
+            schedule_df = pd.read_excel(schedule_path)
+            holiday_df = pd.read_excel(holiday_path)
+        except Exception as e:
+            return f"Error reading files: {e}"
 
-    # Load dataframes
-    holidays_df = pd.read_excel(holidays_file)
+        # Parse timetable data from form
+        timetable = {}
+        for day in ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]:
+            subjects = request.form.get(day, "")
+            subject_list = [sub.strip() for sub in subjects.split(",") if sub.strip()]
+            timetable[day.capitalize()] = subject_list
 
-    # Convert and filter holidays
-    holidays_df['Date'] = pd.to_datetime(holidays_df['Date'])
-    holidays_df = holidays_df[
-        (holidays_df['Date'] >= pd.to_datetime(start_date)) &
-        (holidays_df['Date'] <= pd.to_datetime(end_date))
-    ]
-    holidays_df['Weekday'] = holidays_df['Date'].dt.day_name()
+        # Convert date strings to datetime objects
+        start = datetime.strptime(start_date, "%Y-%m-%d")
+        end = datetime.strptime(end_date, "%Y-%m-%d")
 
-    # Count holidays by weekday
-    weekday_holiday_count = holidays_df['Weekday'].value_counts().to_dict()
+        # Generate list of all weekdays between start and end
+        date_range = pd.date_range(start=start, end=end)
+        holidays = set(pd.to_datetime(holiday_df["Date"]).dt.date)
 
-    # Count all weekdays in date range
-    all_dates = pd.date_range(start=start_date, end=end_date)
-    weekday_counts = pd.Series([d.strftime('%A') for d in all_dates]).value_counts().to_dict()
+        # Create attendance calculation
+        records = []
+        subject_counts = {}
 
-    # Calculate effective weekdays
-    effective_weekdays = {
-        day: max(0, weekday_counts.get(day, 0) - weekday_holiday_count.get(day, 0))
-        for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday','Saturday']
-    }
+        for date in date_range:
+            day_name = date.strftime("%A")
+            if day_name in timetable and date.date() not in holidays:
+                subjects_today = timetable[day_name]
+                for sub in subjects_today:
+                    subject_counts[sub] = subject_counts.get(sub, 0) + 1
 
-    # Count subject occurrences per weekday
-    subject_weekday_count = {}
-    for day, subjects in schedule_df.items():
-        for subject in subjects:
-            if subject.lower() == 'nan' or subject == '':
-                continue
-            if subject not in subject_weekday_count:
-                subject_weekday_count[subject] = {}
-            if day not in subject_weekday_count[subject]:
-                subject_weekday_count[subject][day] = 0
-            subject_weekday_count[subject][day] += 1
+        # Total classes possible per subject
+        report = []
+        for subject, total_classes in subject_counts.items():
+            required = int((target_percentage / 100) * total_classes)
+            report.append({
+                "Subject": subject,
+                "Total Classes": total_classes,
+                "Required for Target %": required
+            })
 
-    # Calculate attendance info
-    threshold_percent = float(request.form['threshold'])  # e.g., 75
-    ATTENDANCE_THRESHOLD = threshold_percent / 100.0
+        report_df = pd.DataFrame(report)
+        report_df = report_df.sort_values(by="Subject")
 
-    subject_attendance_data = []
-    for subject, days in subject_weekday_count.items():
-        total_classes = 0
-        for day, count in days.items():
-            total_classes += count * effective_weekdays.get(day, 0)
-        min_required = int(np.ceil(total_classes * ATTENDANCE_THRESHOLD))
-        max_absents = total_classes - min_required
-        subject_attendance_data.append({
-            'Subject': subject,
-            'TotalClasses': total_classes,
-            'MinRequired': min_required,
-            'MaxAbsents': max_absents
-        })
+        return render_template("index.html", tables=report_df.to_html(classes="table-auto w-full text-sm text-left text-gray-700 border", index=False, border=0))
 
-    # Convert to DataFrame for HTML rendering
-    result_df = pd.DataFrame(subject_attendance_data)
+    return render_template("index.html", tables=None)
 
-    # Convert DataFrame to HTML table
-    result_html = result_df.to_html(classes='table table-bordered table-striped', index=False)
-
-    return render_template('index.html', result=result_html)
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
