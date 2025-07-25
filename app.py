@@ -1,63 +1,68 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file
 import pandas as pd
+from datetime import datetime, timedelta
 import os
-from werkzeug.utils import secure_filename
-from collections import defaultdict
 
 app = Flask(__name__)
-UPLOAD_FOLDER = 'uploads'
-DEFAULT_HOLIDAY_FILE = 'static/default_holidays.xlsx'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
+# Path to default holiday file
+DEFAULT_HOLIDAY_FILE = "default_holidays.xlsx"
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+def normalize_subject(subj):
+    return subj.strip().lower()
 
-@app.route('/analyze', methods=['POST'])
-def analyze():
-    start_date = pd.to_datetime(request.form['start_date'])
-    end_date = pd.to_datetime(request.form['end_date'])
-
-    # Load holiday file (user uploaded or default)
-    holiday_file = request.files.get('holiday_file')
-    if holiday_file and holiday_file.filename.endswith('.xlsx'):
-        filename = secure_filename(holiday_file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        holiday_file.save(filepath)
-        holidays = pd.read_excel(filepath)['Date'].dt.date.tolist()
+def read_holidays(holiday_file):
+    if holiday_file:
+        holiday_df = pd.read_excel(holiday_file)
     else:
-        holidays = pd.read_excel(DEFAULT_HOLIDAY_FILE)['Date'].dt.date.tolist()
+        holiday_df = pd.read_excel(DEFAULT_HOLIDAY_FILE)
 
-    # Get subject schedule from form
+    return set(holiday_df['Date'].dt.date)
+
+def generate_schedule(form_data):
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     schedule = {}
-    for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]:
-        subjects = request.form.get(day, "")
-        schedule[day] = [s.strip().lower() for s in subjects.split(",") if s.strip()]
+    for day in days:
+        subjects = form_data.get(day)
+        if subjects:
+            subject_list = [normalize_subject(s) for s in subjects.split(',') if s.strip()]
+            schedule[day] = subject_list
+    return schedule
 
-    # Generate date range and attendance counts
-    all_dates = pd.date_range(start=start_date, end=end_date)
-    attendance = defaultdict(lambda: {"Total": 0, "Present": 0})
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        start_date = datetime.strptime(request.form['start_date'], '%Y-%m-%d').date()
+        end_date = datetime.strptime(request.form['end_date'], '%Y-%m-%d').date()
 
-    for date in all_dates:
-        if date.date() in holidays or date.strftime('%A') not in schedule:
-            continue
-        weekday = date.strftime('%A')
-        for subject in schedule[weekday]:
-            attendance[subject]["Total"] += 1
-            attendance[subject]["Present"] += 1  # Default assuming 100% present for now
+        # Read schedule from form
+        schedule = generate_schedule(request.form)
 
-    # Create result table
-    df_result = pd.DataFrame([
-        {"Subject": subj.title(), "Total Classes": data["Total"], "Present": data["Present"], "Attendance (%)": round((data["Present"] / data["Total"] * 100) if data["Total"] > 0 else 0, 2)}
-        for subj, data in attendance.items()
-    ])
+        # Read holidays
+        holiday_file = request.files.get('holiday_file')
+        holidays = read_holidays(holiday_file)
 
-    tables = [df_result.to_html(classes='table table-bordered table-hover mt-4', index=False)]
+        # Initialize subject counts
+        subject_count = {}
+        current_date = start_date
 
-    return render_template('index.html', tables=tables)
+        while current_date <= end_date:
+            if current_date not in holidays:
+                weekday = current_date.strftime('%A')
+                subjects_today = schedule.get(weekday, [])
+                for subj in subjects_today:
+                    subject_count[subj] = subject_count.get(subj, 0) + 1
+            current_date += timedelta(days=1)
+
+        # Prepare result as DataFrame
+        result_df = pd.DataFrame([
+            {'Subject': subject.title(), 'Total Days': count}
+            for subject, count in subject_count.items()
+        ]).sort_values(by='Subject')
+
+        return render_template('index.html', table=result_df.to_html(classes='table table-bordered table-striped', index=False), submitted=True)
+
+    return render_template('index.html', submitted=False)
 
 if __name__ == '__main__':
     app.run(debug=True)
