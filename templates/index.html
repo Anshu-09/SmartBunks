@@ -9,9 +9,29 @@
         <h2 class="text-center mb-4">SmartBunks Attendance Calculator</h2>
         <form method="POST" action="/upload" enctype="multipart/form-data" class="bg-white p-4 rounded shadow">
             <div class="mb-3">
-                <label for="schedule" class="form-label">Upload Schedule Excel:</label>
-                <input type="file" class="form-control" name="schedule" required>
-            </div>
+    <label class="form-label">Enter Subjects for Each Weekday:</label>
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Weekday</th>
+                    <th>Subjects (comma separated)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'] %}
+                <tr>
+                    <td>{{ day }}</td>
+                    <td>
+                        <input type="text" class="form-control" name="schedule_{{ day }}" placeholder="e.g., Maths, Physics, Chemistry">
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
             <div class="mb-3">
                 <label for="holidays" class="form-label">Upload Holidays Excel:</label>
                 <input type="file" class="form-control" name="holidays" required>

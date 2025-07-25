@@ -14,11 +14,17 @@ def index():
 def upload_files():
     start_date = request.form['start_date']
     end_date = request.form['end_date']
-    schedule_file = request.files['schedule']
+# Read schedule from form input instead of Excel
+schedule_df = {}
+for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']:
+    subjects_str = request.form.get(f'schedule_{day}', '')
+    subjects = [s.strip() for s in subjects_str.split(',') if s.strip()]
+    schedule_df[day] = subjects
+
+
     holidays_file = request.files['holidays']
 
     # Load dataframes
-    schedule_df = pd.read_excel(schedule_file, index_col=0)
     holidays_df = pd.read_excel(holidays_file)
 
     # Convert and filter holidays
@@ -44,16 +50,18 @@ def upload_files():
 
     # Count subject occurrences per weekday
     subject_weekday_count = {}
-    for day, row in schedule_df.iterrows():
-        for subject in row:
-            subject = str(subject).strip()
-            if subject == '' or subject.lower() == 'nan':
-                continue
-            if subject not in subject_weekday_count:
-                subject_weekday_count[subject] = {}
-            if day not in subject_weekday_count[subject]:
-                subject_weekday_count[subject][day] = 0
-            subject_weekday_count[subject][day] += 1
+   
+
+   for day, subjects in schedule_df.items():
+    for subject in subjects:
+        if subject.lower() == 'nan' or subject == '':
+            continue
+        if subject not in subject_weekday_count:
+            subject_weekday_count[subject] = {}
+        if day not in subject_weekday_count[subject]:
+            subject_weekday_count[subject][day] = 0
+        subject_weekday_count[subject][day] += 1
+
 
     # Calculate attendance info
     threshold_percent = float(request.form['threshold'])  # e.g., 75
