@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request
 import pandas as pd
-import os
 
 app = Flask(__name__)
 
@@ -15,46 +14,40 @@ def index():
             end_date = request.form.get('end_date')
             holiday_file = request.files.get('holiday_file')
 
-            # Load default holiday file if none is uploaded
-            if holiday_file and holiday_file.filename.endswith('.xlsx'):
-                holiday_df = pd.read_excel(holiday_file)
-            else:
-                default_path = os.path.join('static', 'data', 'default_holidays.xlsx')
-                holiday_df = pd.read_excel(default_path)
+            if not start_date or not end_date or not holiday_file:
+                raise ValueError("All fields are required!")
 
-            # Count total working days
-            date_range = pd.date_range(start=start_date, end=end_date, freq='D')
-            weekdays = date_range[date_range.dayofweek < 5]  # Monday to Friday
-
-            # Remove holidays from working days
+            # Read holiday file
+            holiday_df = pd.read_excel(holiday_file)
             holidays = pd.to_datetime(holiday_df['Date'], errors='coerce')
+
+            # Calculate working weekdays excluding holidays
+            date_range = pd.date_range(start=start_date, end=end_date, freq='D')
+            weekdays = date_range[date_range.dayofweek < 5]
             working_days = [day for day in weekdays if day not in holidays]
 
-            # Subject pattern based on weekdays (Mon–Fri)
+            # Subject map by weekday
             weekday_subjects = {
-                0: "Math",       # Monday
-                1: "Physics",    # Tuesday
-                2: "Chemistry",  # Wednesday
-                3: "English",    # Thursday
-                4: "Computer"    # Friday
+                0: "Math",
+                1: "Physics",
+                2: "Chemistry",
+                3: "English",
+                4: "Computer"
             }
 
-            # Tally attendance by subject
+            # Count subjects
             subject_counts = {}
             for day in working_days:
                 subject = weekday_subjects.get(day.weekday())
                 if subject:
-                    # Normalize similar subject names
                     subject = subject.strip().lower()
                     subject = subject.replace("maths", "math")
                     subject_counts[subject] = subject_counts.get(subject, 0) + 1
 
-            # Convert keys back to title-case
-            formatted_result = {subj.title(): count for subj, count in subject_counts.items()}
-            result = formatted_result
+            result = {k.title(): v for k, v in subject_counts.items()}
 
         except Exception as e:
-            error = f"An error occurred: {str(e)}"
+            error = f"Error: {str(e)}"
 
     return render_template('index.html', result=result, error=error)
 

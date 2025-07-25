@@ -2,124 +2,92 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SmartBunks - Attendance Analyzer</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Bootstrap CSS -->
+    <title>SmartBunks</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
+            padding: 20px;
             background-color: #f8f9fa;
-            font-size: 14px;
-        }
-        label {
-    font-weight: 600; /* Slightly bold */
-  }
-        h1 {
-            font-weight: 700;
-            color: black;
         }
         .card {
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 10px;
         }
-        table {
-            font-size: 14px;
+        .btn-analyse {
+            background-color: #007bff;
+            color: white;
+            width: 100%;
+            font-weight: 600;
         }
-        footer {
-            margin-top: 40px;
-            padding: 10px 0;
+        .footer {
+            margin-top: 20px;
             text-align: center;
-            color: #6c757d;
+            color: #777;
         }
-        @media (max-width: 767px) {
-            .row > div {
-                margin-bottom: 20px;
-            }
+        h1 {
+            font-weight: bold;
+            color: black;
+        }
+        label {
+            font-weight: 500;
+        }
+        .alert-small {
+            font-size: 0.85rem;
+            padding: 4px 8px;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
-<div class="container mt-5">
-    <h1 class="text-center mb-4">SmartBunks Attendance Analyzer</h1>
-    <form action="/analyze" method="POST" enctype="multipart/form-data">
-        <div class="row">
-            <!-- Left Card: Date + Holidays -->
+    <div class="container">
+        <h1 class="text-center mb-4">SmartBunks Attendance Analyzer</h1>
+        <div class="row justify-content-center">
             <div class="col-md-6">
                 <div class="card p-4">
-                    <div class="mb-3">
-                        <label for="start_date" class="form-label">Start Date</label>
-                        <input type="date" class="form-control" id="start_date" name="start_date" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="end_date" class="form-label">End Date</label>
-                        <input type="date" class="form-control" id="end_date" name="end_date" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="holiday_file" class="form-label">Upload Holiday File (Optional)</label>
-                        <input type="file" class="form-control" id="holiday_file" name="holiday_file" accept=".xlsx">
-                        <div class="form-text text-muted mt-1" style="font-size: 0.85em;">
-                            If not uploaded, default holiday list will be used.<br>
-                            <a href="/static/default_holidays.xlsx" download>Download default holiday list</a>
+                    <form action="/" method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="start_date" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="start_date" name="start_date" required>
                         </div>
-                    </div>
+                        <div class="mb-3">
+                            <label for="end_date" class="form-label">End Date</label>
+                            <input type="date" class="form-control" id="end_date" name="end_date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="holiday_file" class="form-label">Upload Holiday Excel File (.xlsx)</label>
+                            <input type="file" class="form-control" id="holiday_file" name="holiday_file" accept=".xlsx">
+                        </div>
+                    </form>
                 </div>
+                <button form="form" type="submit" class="btn btn-analyse mt-3">Analyse Attendance</button>
 
-                <!-- Button below left card -->
-                <div class="mt-3">
-    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">Analyse Attendance</button>
-</div>
-
-            </div>
-
-            <!-- Right Card: Timetable Form -->
-            <div class="col-md-6">
-                <div class="card p-4">
-                    {% for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"] %}
-                    <div class="mb-3">
-                        <label for="{{ day }}" class="form-label">{{ day }}</label>
-                        <input type="text" class="form-control" id="{{ day }}" name="{{ day }}"
-                               placeholder="Enter subjects separated by commas" required>
+                {% if result %}
+                    <div class="card p-3 mt-4">
+                        <h5>Subject-wise Working Days:</h5>
+                        <table class="table table-bordered mt-3">
+                            <thead>
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for subject, count in result.items() %}
+                                    <tr>
+                                        <td>{{ subject }}</td>
+                                        <td>{{ count }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-    </form>
+                {% elif error %}
+                    <div class="alert alert-danger mt-4">{{ error }}</div>
+                {% endif %}
 
-    {% if result %}
-    <div class="card mt-5 p-4">
-        <h4 class="mb-3">Attendance Analysis Result</h4>
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped">
-                <thead class="table-light">
-                    <tr>
-                        <th>Subject</th>
-                        <th>Total Classes</th>
-                        <th>Days Scheduled</th>
-                        <th>Avg. per Week</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for subject, stats in result.items() %}
-                    <tr>
-                        <td>{{ subject }}</td>
-                        <td>{{ stats.total_classes }}</td>
-                        <td>{{ stats.days_scheduled }}</td>
-                        <td>{{ stats.avg_per_week }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                <div class="footer mt-4">SmartBunks by Anshuman</div>
+            </div>
         </div>
     </div>
-    {% endif %}
-
-    <footer>
-        <p>SmartBunks by Anshuman</p>
-    </footer>
-</div>
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>
