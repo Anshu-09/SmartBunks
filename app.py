@@ -9,7 +9,6 @@ app = Flask(__name__)
 
 def index():
     return render_template('index.html')  # Load the upload form
-=======
 def home():
     return "✅ SmartBunks Flask app is running!"
 
