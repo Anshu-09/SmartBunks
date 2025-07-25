@@ -6,6 +6,10 @@ import os
 
 app = Flask(__name__)
 
+@app.route('/', methods=['GET'])
+def home():
+    return "✅ SmartBunks Flask app is running!"
+
 @app.route('/', methods=['POST'])
 def analyze_attendance():
     try:
