@@ -6,8 +6,12 @@ from datetime import datetime, timedelta
 app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
+
 def index():
     return render_template('index.html')  # Load the upload form
+=======
+def home():
+    return "✅ SmartBunks Flask app is running!"
 
 @app.route('/', methods=['POST'])
 def analyze_attendance():
