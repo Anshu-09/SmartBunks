@@ -2,183 +2,190 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartBunks</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background: #f1f5f9;
+            font-family: 'Segoe UI', sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            background: #f8f9fa;
         }
-
         h1 {
             text-align: center;
-            margin-bottom: 10px;
+            color: #2c3e50;
+            font-weight: 700;
+            padding: 20px 10px 10px;
+            font-size: 2rem;
+            border-bottom: 2px solid #ddd;
         }
-
-        .alert {
-            background-color: #e0f2fe;
-            border: 1px solid #38bdf8;
-            color: #0c4a6e;
-            padding: 10px 20px;
-            border-radius: 8px;
-            margin: 10px auto 30px auto;
-            max-width: 600px;
-            text-align: center;
-        }
-
-        .alert a {
-            color: #0c4a6e;
-            text-decoration: underline;
-        }
-
         .container {
             display: flex;
             flex-wrap: wrap;
-            gap: 30px;
-            justify-content: center;
+            justify-content: space-around;
+            padding: 20px;
+            gap: 20px;
         }
-
         .card {
-            background: white;
-            padding: 25px;
+            background-color: #ffffff;
+            padding: 20px;
             border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 460px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            flex: 1;
+            min-width: 300px;
+            max-width: 450px;
         }
-
         label {
-            font-weight: bold;
-            margin-top: 15px;
+            font-weight: 600;
             display: block;
+            margin-top: 10px;
         }
-
-        input[type="date"],
-        input[type="number"],
         input[type="file"],
+        input[type="date"],
         input[type="text"] {
             width: 100%;
-            padding: 10px;
-            margin-top: 8px;
-            margin-bottom: 18px;
-            border: 1px solid #ccc;
+            padding: 8px;
+            margin-top: 4px;
             border-radius: 6px;
+            border: 1px solid #ccc;
         }
-
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 0.9rem;
         }
-
         th, td {
-            padding: 8px;
             border: 1px solid #ccc;
+            padding: 6px;
             text-align: center;
         }
-
         th {
-            background: #f8fafc;
-        }
-
-        button {
-            background-color: #3b82f6;
+            background-color: #007bff;
             color: white;
+        }
+        button {
+            margin-top: 20px;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 16px;
+            font-weight: 600;
             border: none;
-            padding: 12px 24px;
-            font-size: 16px;
             border-radius: 6px;
             cursor: pointer;
         }
-
         button:hover {
-            background-color: #2563eb;
+            background-color: #0056b3;
         }
-
-        @media (min-width: 768px) {
-            .container {
-                flex-wrap: nowrap;
-            }
-        }
-
-        .result-container {
-            margin-top: 40px;
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-        }
-
-        .result-table {
-            overflow-x: auto;
-        }
-
-        footer {
-            margin-top: 40px;
+        .footer {
             text-align: center;
-            font-size: 14px;
-            color: #64748b;
+            padding: 15px;
+            font-size: 0.9rem;
+            color: #777;
+            border-top: 1px solid #ccc;
+            margin-top: 30px;
+        }
+        .alert {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: #555;
+            background: #f2f2f2;
+            padding: 6px 10px;
+            border-radius: 6px;
+        }
+        .alert a {
+            color: #007bff;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
         }
     </style>
 </head>
 <body>
+
     <h1>SmartBunks Attendance Analyzer</h1>
 
-    <div class="alert">
-        Default <strong>holiday.xlsx</strong> is preloaded. You can edit it or use as is.<br>
-        <a href="{{ url_for('static', filename='holiday.xlsx') }}" download>Click here to download the default holiday file</a>
-    </div>
-
-    <form action="/process" method="post" enctype="multipart/form-data">
+    <form action="/analyze" method="post" enctype="multipart/form-data">
         <div class="container">
+            <!-- Left Card -->
             <div class="card">
-                <label for="holiday_sheet">Holiday File (Optional):</label>
-                <input type="file" id="holiday_sheet" name="holiday_sheet">
-
                 <label for="start_date">Start Date:</label>
-                <input type="date" id="start_date" name="start_date" required>
+                <input type="date" name="start_date" required>
 
                 <label for="end_date">End Date:</label>
-                <input type="date" id="end_date" name="end_date" required>
+                <input type="date" name="end_date" required>
 
-                <label for="threshold">Minimum Required Attendance (%):</label>
-                <input type="number" id="threshold" name="threshold" value="75" min="1" max="100">
+                <label for="min_attendance">Minimum Attendance % (e.g., 75):</label>
+                <input type="text" name="min_attendance" required>
+
+                <label for="holiday_file">Upload Holiday Excel file (optional):</label>
+                <input type="file" name="holiday_file" accept=".xlsx">
+
+                <div class="alert">
+                    By default, a preloaded holiday list is used. You can upload your own if needed.
+                    <br><a href="/static/holiday.xlsx" download>Download default holiday.xlsx</a>
+                </div>
             </div>
 
+            <!-- Right Card -->
             <div class="card">
-                <label>Weekly Timetable</label>
+                <label>Enter Schedule (Subjects per Weekday):</label>
                 <table>
                     <tr>
-                        <th>Day</th>
-                        <th>Subjects (comma separated)</th>
+                        <th>Weekday</th>
+                        <th>Subjects (comma-separated)</th>
                     </tr>
-                    {% for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] %}
+                    {% for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"] %}
                     <tr>
                         <td>{{ day }}</td>
-                        <td><input type="text" name="{{ day.lower() }}" placeholder="eg. Maths, Physics"></td>
+                        <td>
+                            <input type="text" name="schedule_{{ day }}" placeholder="e.g. Maths,Physics">
+                        </td>
                     </tr>
                     {% endfor %}
                 </table>
             </div>
         </div>
 
-        <div style="text-align:center; margin-top: 30px;">
+        <div style="text-align: center;">
             <button type="submit">Analyse Attendance</button>
         </div>
     </form>
 
-    {% if table %}
-    <div class="result-container">
-        <h2 style="text-align:center;">Analysis Result</h2>
-        <div class="result-table">
-            {{ table | safe }}
+    {% if result %}
+        <div class="container">
+            <div class="card" style="width:100%;">
+                <h3 style="text-align:center;">Analysis Result</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            {% for col in result.columns %}
+                            <th>{{ col }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in result.values %}
+                        <tr>
+                            {% for cell in row %}
+                            <td>{{ cell }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
     {% endif %}
 
-    <footer>
-        <p>SmartBunks by Anshuman</p>
-    </footer>
+    <div class="footer">
+        SmartBunks by Anshuman
+    </div>
+
 </body>
 </html>
