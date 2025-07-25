@@ -24,6 +24,10 @@
                 <label for="end_date" class="form-label">End Date:</label>
                 <input type="date" class="form-control" name="end_date" required>
             </div>
+            <div class="mb-3">
+             <label for="threshold" class="form-label">Minimum Attendance % Required:</label>
+             <input type="number" class="form-control" name="threshold" min="0" max="100" step="1" value="75" required>
+            </div>
             <button type="submit" class="btn btn-primary w-100">Calculate Attendance</button>
         </form>
 
