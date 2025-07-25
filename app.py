@@ -56,8 +56,7 @@ def upload_files():
             subject_weekday_count[subject][day] += 1
 
     # Calculate attendance info
-    ATTENDANCE_THRESHOLD = float(request.form['threshold']) / 100
-
+    ATTENDANCE_THRESHOLD = 0.75
     subject_attendance_data = []
     for subject, days in subject_weekday_count.items():
         total_classes = 0
