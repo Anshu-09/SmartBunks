@@ -6,7 +6,7 @@ import os
 
 app = Flask(__name__)
 
-@app.route('/analyze', methods=['POST'])
+@app.route('/', methods=['POST'])
 def analyze_attendance():
     try:
         # === GET DATES FROM FORM ===
