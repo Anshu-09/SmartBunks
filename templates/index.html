@@ -14,28 +14,44 @@
 
         h1 {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
+        }
+
+        .alert {
+            background-color: #e0f2fe;
+            border: 1px solid #38bdf8;
+            color: #0c4a6e;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin: 10px auto 30px auto;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .alert a {
+            color: #0c4a6e;
+            text-decoration: underline;
         }
 
         .container {
             display: flex;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 30px;
             justify-content: center;
         }
 
         .card {
             background: white;
-            padding: 20px;
+            padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
             width: 100%;
-            max-width: 450px;
+            max-width: 460px;
         }
 
         label {
             font-weight: bold;
-            margin-top: 10px;
+            margin-top: 15px;
             display: block;
         }
 
@@ -44,9 +60,9 @@
         input[type="file"],
         input[type="text"] {
             width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            margin-bottom: 15px;
+            padding: 10px;
+            margin-top: 8px;
+            margin-bottom: 18px;
             border: 1px solid #ccc;
             border-radius: 6px;
         }
@@ -57,7 +73,7 @@
         }
 
         th, td {
-            padding: 6px;
+            padding: 8px;
             border: 1px solid #ccc;
             text-align: center;
         }
@@ -70,7 +86,7 @@
             background-color: #3b82f6;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 24px;
             font-size: 16px;
             border-radius: 6px;
             cursor: pointer;
@@ -87,24 +103,37 @@
         }
 
         .result-container {
-            margin-top: 30px;
+            margin-top: 40px;
             background: white;
-            padding: 20px;
+            padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
         }
 
         .result-table {
             overflow-x: auto;
         }
+
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 14px;
+            color: #64748b;
+        }
     </style>
 </head>
 <body>
     <h1>SmartBunks Attendance Analyzer</h1>
+
+    <div class="alert">
+        Default <strong>holiday.xlsx</strong> is preloaded. You can edit it or use as is.<br>
+        <a href="{{ url_for('static', filename='holiday.xlsx') }}" download>Click here to download the default holiday file</a>
+    </div>
+
     <form action="/process" method="post" enctype="multipart/form-data">
         <div class="container">
             <div class="card">
-                <label for="holiday_sheet">Holiday File (Default Editable):</label>
+                <label for="holiday_sheet">Holiday File (Optional):</label>
                 <input type="file" id="holiday_sheet" name="holiday_sheet">
 
                 <label for="start_date">Start Date:</label>
@@ -134,7 +163,7 @@
             </div>
         </div>
 
-        <div style="text-align:center; margin-top: 20px;">
+        <div style="text-align:center; margin-top: 30px;">
             <button type="submit">Analyse Attendance</button>
         </div>
     </form>
@@ -147,5 +176,9 @@
         </div>
     </div>
     {% endif %}
+
+    <footer>
+        <p>SmartBunks by Anshuman</p>
+    </footer>
 </body>
 </html>
