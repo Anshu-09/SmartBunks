@@ -1,122 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SmartBunks</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
+    <meta charset="UTF-8">
+    <title>SmartBunks</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            padding: 30px;
+        }
 
-    body {
-      margin: 0;
-      padding: 20px;
-      background: #f4f4f4;
-    }
+        .container-flex {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
 
-    .container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-    }
+        .card {
+            flex: 1;
+            min-width: 300px;
+            margin: 10px;
+        }
 
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      flex: 1 1 300px;
-    }
+        table {
+            margin-top: 30px;
+        }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
+        @media (max-width: 768px) {
+            .container-flex {
+                flex-direction: column;
+            }
+        }
 
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: center;
-    }
+        textarea {
+            resize: vertical;
+        }
 
-    th {
-      background-color: #007bff;
-      color: white;
-    }
-
-    input[type="text"], input[type="date"], input[type="number"] {
-      width: 100%;
-      padding: 6px;
-      margin: 6px 0;
-    }
-
-    input[type="file"] {
-      margin-top: 6px;
-    }
-
-    .submit-btn {
-      margin-top: 20px;
-      padding: 10px 20px;
-      background: #28a745;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .submit-btn:hover {
-      background: #218838;
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-      }
-    }
-  </style>
+        .form-group small {
+            font-size: 0.8rem;
+        }
+    </style>
 </head>
 <body>
-  <h1>SmartBunks - Attendance Calculator</h1>
-  <form action="/process" method="post" enctype="multipart/form-data">
     <div class="container">
-      <div class="card">
-        <h3>General Info</h3>
-        <label>Start Date:</label>
-        <input type="date" name="start_date" required />
-        <label>End Date:</label>
-        <input type="date" name="end_date" required />
-        <label>Required Attendance %:</label>
-        <input type="number" name="required_attendance" min="1" max="100" value="75" required />
-        <label>Holiday File (optional):</label>
-        <input type="file" name="holiday_file" accept=".xlsx" />
-      </div>
+        <h2 class="mb-4 text-center">SmartBunks – Attendance Calculator</h2>
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <div class="container-flex">
+                <!-- Left: Holidays and Dates -->
+                <div class="card p-3">
+                    <h5>Upload Holiday File & Set Date Range</h5>
+                    <div class="form-group">
+                        <label for="start_date">Start Date:</label>
+                        <input type="date" class="form-control" name="start_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="end_date">End Date:</label>
+                        <input type="date" class="form-control" name="end_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="holidays">Holidays File (.xlsx):</label>
+                        <input type="file" class="form-control-file" name="holidays" accept=".xlsx">
+                        <small>If not uploaded, default holidays.xlsx will be used.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="threshold">Attendance Threshold (%):</label>
+                        <input type="number" class="form-control" name="threshold" value="75" required>
+                    </div>
+                </div>
 
-      <div class="card">
-        <h3>Weekly Timetable</h3>
-        <label>Enter subjects for each weekday (comma separated):</label>
-        <label>Monday:</label>
-        <input type="text" name="monday[]" placeholder="e.g., Math, Physics, CS" />
-        <label>Tuesday:</label>
-        <input type="text" name="tuesday[]" />
-        <label>Wednesday:</label>
-        <input type="text" name="wednesday[]" />
-        <label>Thursday:</label>
-        <input type="text" name="thursday[]" />
-        <label>Friday:</label>
-        <input type="text" name="friday[]" />
-      </div>
-    </div>
-    <button class="submit-btn" type="submit">Calculate Attendance</button>
-  </form>
+                <!-- Right: Timetable -->
+                <div class="card p-3">
+                    <h5>Enter Weekly Timetable</h5>
+                    {% for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'] %}
+                        <div class="form-group">
+                            <label>{{ day }}:</label>
+                            <textarea name="schedule_{{ day }}" class="form-control" rows="2" placeholder="e.g. maths, physics, cs"></textarea>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
 
-  {% if result %}
-    <div class="card" style="margin-top: 30px;">
-      <h3>Attendance Recommendation</h3>
-      {{ result|safe }}
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary mt-3">Submit</button>
+            </div>
+        </form>
+
+        {% if result %}
+        <div class="mt-5">
+            <h4>Attendance Summary:</h4>
+            <div class="table-responsive">
+                {{ result|safe }}
+            </div>
+        </div>
+        {% endif %}
     </div>
-  {% endif %}
 </body>
 </html>
