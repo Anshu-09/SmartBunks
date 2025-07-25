@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SmartBunks - Attendance Analyzer</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+        input, button { margin: 10px 0; padding: 8px; width: 100%; }
+        #result { white-space: pre-wrap; background: #f9f9f9; padding: 10px; border-radius: 6px; }
+    </style>
+</head>
+<body>
+    <h1>SmartBunks - Attendance Analyzer</h1>
+    <form id="uploadForm">
+        <label>Start Date:</label>
+        <input type="date" name="start_date" required>
+
+        <label>End Date:</label>
+        <input type="date" name="end_date" required>
+
+        <label>Schedule Excel File:</label>
+        <input type="file" name="schedule" accept=".xls,.xlsx" required>
+
+        <label>Holidays Excel File:</label>
+        <input type="file" name="holidays" accept=".xls,.xlsx" required>
+
+        <button type="submit">Analyze Attendance</button>
+    </form>
+
+    <h2>Results</h2>
+    <div id="result">Waiting for submission...</div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const resultDiv = document.getElementById('result');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            resultDiv.textContent = 'Processing...';
+
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch('/', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const contentType = response.headers.get("content-type");
+
+                if (contentType.includes("application/json")) {
+                    const data = await response.json();
+                    resultDiv.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    resultDiv.textContent = 'Unexpected response type.';
+                }
+
+            } catch (error) {
+                resultDiv.textContent = 'Error: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>
