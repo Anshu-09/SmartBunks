@@ -1,90 +1,78 @@
 from flask import Flask, render_template, request
 import pandas as pd
-import numpy as np
-from datetime import datetime
+from fuzzywuzzy import fuzz
 import os
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = 'uploads'
+
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
+
+def normalize_subjects(subjects, threshold=85):
+    """Automatically merge similar subject names using fuzzy matching."""
+    unique_subjects = []
+    subject_map = {}
+
+    for subject in subjects:
+        subject_clean = subject.strip().lower()
+        matched = False
+
+        for ref in unique_subjects:
+            if fuzz.ratio(subject_clean, ref) >= threshold:
+                subject_map[subject] = ref
+                matched = True
+                break
+
+        if not matched:
+            unique_subjects.append(subject_clean)
+            subject_map[subject] = subject_clean
+
+    return subject_map
 
 @app.route('/')
 def index():
-    return render_template('index.html', result=None)
+    return render_template('index.html')
 
-@app.route('/upload', methods=['POST'])
-def upload_files():
-    start_date = request.form['start_date']
-    end_date = request.form['end_date']
+@app.route('/result', methods=['POST'])
+def result():
+    if 'scheduleFile' not in request.files or 'holidaysFile' not in request.files:
+        return "Missing file(s)", 400
 
-    # Read schedule from form input instead of Excel
-    schedule_df = {}
-    for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']:
-        subjects_str = request.form.get(f'schedule_{day}', '')
-        subjects = [s.strip() for s in subjects_str.split(',') if s.strip()]
-        schedule_df[day] = subjects
+    schedule_file = request.files['scheduleFile']
+    holidays_file = request.files['holidaysFile']
+    start_date = request.form['startDate']
+    end_date = request.form['endDate']
 
-    holidays_file = request.files['holidays']
+    if not schedule_file or not holidays_file or schedule_file.filename == '' or holidays_file.filename == '':
+        return "No selected file", 400
 
-    # Load dataframes
-    holidays_df = pd.read_excel(holidays_file)
+    # Save and load files
+    schedule_path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(schedule_file.filename))
+    holidays_path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(holidays_file.filename))
+    schedule_file.save(schedule_path)
+    holidays_file.save(holidays_path)
 
-    # Convert and filter holidays
-    holidays_df['Date'] = pd.to_datetime(holidays_df['Date'])
-    holidays_df = holidays_df[
-        (holidays_df['Date'] >= pd.to_datetime(start_date)) &
-        (holidays_df['Date'] <= pd.to_datetime(end_date))
-    ]
-    holidays_df['Weekday'] = holidays_df['Date'].dt.day_name()
+    df = pd.read_excel(schedule_path)
+    holidays = pd.read_excel(holidays_path)
 
-    # Count holidays by weekday
-    weekday_holiday_count = holidays_df['Weekday'].value_counts().to_dict()
+    df['Date'] = pd.to_datetime(df['Date'])
+    holidays['Date'] = pd.to_datetime(holidays['Date'])
 
-    # Count all weekdays in date range
-    all_dates = pd.date_range(start=start_date, end=end_date)
-    weekday_counts = pd.Series([d.strftime('%A') for d in all_dates]).value_counts().to_dict()
+    df = df[(df['Date'] >= pd.to_datetime(start_date)) & (df['Date'] <= pd.to_datetime(end_date))]
+    df = df[~df['Date'].isin(holidays['Date'])]
 
-    # Calculate effective weekdays
-    effective_weekdays = {
-        day: max(0, weekday_counts.get(day, 0) - weekday_holiday_count.get(day, 0))
-        for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
-    }
+    # Normalize subjects
+    subject_map = normalize_subjects(df['Subject'].tolist())
+    df['Subject'] = df['Subject'].map(subject_map)
 
-    # Count subject occurrences per weekday
-    subject_weekday_count = {}
-    for day, subjects in schedule_df.items():
-        for subject in subjects:
-            if subject.lower() == 'nan' or subject == '':
-                continue
-            if subject not in subject_weekday_count:
-                subject_weekday_count[subject] = {}
-            if day not in subject_weekday_count[subject]:
-                subject_weekday_count[subject][day] = 0
-            subject_weekday_count[subject][day] += 1
+    grouped = df.groupby('Subject').size().reset_index(name='TotalClasses')
+    grouped['MinRequired'] = (grouped['TotalClasses'] * 0.75).apply(lambda x: int(x) if x.is_integer() else int(x) + 1)
+    grouped['MaxAbsents'] = grouped['TotalClasses'] - grouped['MinRequired']
+    grouped['Subject'] = grouped['Subject'].str.title()
 
-    # Calculate attendance info
-    threshold_percent = float(request.form['threshold'])  # e.g., 75
-    ATTENDANCE_THRESHOLD = threshold_percent / 100.0
-
-    subject_attendance_data = []
-    for subject, days in subject_weekday_count.items():
-        total_classes = 0
-        for day, count in days.items():
-            total_classes += count * effective_weekdays.get(day, 0)
-        min_required = int(np.ceil(total_classes * ATTENDANCE_THRESHOLD))
-        max_absents = total_classes - min_required
-        subject_attendance_data.append({
-            'Subject': subject,
-            'TotalClasses': total_classes,
-            'MinRequired': min_required,
-            'MaxAbsents': max_absents
-        })
-
-    # Convert to DataFrame for HTML rendering
-    result_df = pd.DataFrame(subject_attendance_data)
-
-    # Convert DataFrame to HTML table
-    result_html = result_df.to_html(classes='table table-bordered table-striped', index=False)
-
-    return render_template('index.html', result=result_html)
+    return render_template('result.html', tables=grouped.to_dict(orient='records'))
 
 if __name__ == '__main__':
     app.run(debug=True)
