@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_from_directory
 import pandas as pd
 import numpy as np
 from datetime import datetime
@@ -17,17 +17,20 @@ def upload_files():
 
     # Read schedule from form input instead of Excel
     schedule_df = {}
-    for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']:
+    for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']:
         subjects_str = request.form.get(f'schedule_{day}', '')
         subjects = [s.strip() for s in subjects_str.split(',') if s.strip()]
         schedule_df[day] = subjects
 
-    holidays_file = request.files['holidays']
+    # Load holiday file (use static default if none uploaded)
+    holidays_file = request.files.get('holidays')
+    if holidays_file and holidays_file.filename != '':
+        holidays_df = pd.read_excel(holidays_file)
+    else:
+        default_path = os.path.join('static', 'data', 'holidays.xlsx')
+        holidays_df = pd.read_excel(default_path)
 
-    # Load dataframes
-    holidays_df = pd.read_excel(holidays_file)
-
-    # Convert and filter holidays
+    # Filter holidays by date range
     holidays_df['Date'] = pd.to_datetime(holidays_df['Date'])
     holidays_df = holidays_df[
         (holidays_df['Date'] >= pd.to_datetime(start_date)) &
@@ -45,7 +48,7 @@ def upload_files():
     # Calculate effective weekdays
     effective_weekdays = {
         day: max(0, weekday_counts.get(day, 0) - weekday_holiday_count.get(day, 0))
-        for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday','Saturday']
+        for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     }
 
     # Count subject occurrences per weekday
@@ -61,7 +64,7 @@ def upload_files():
             subject_weekday_count[subject][day] += 1
 
     # Calculate attendance info
-    threshold_percent = float(request.form['threshold'])  # e.g., 75
+    threshold_percent = float(request.form['threshold'])
     ATTENDANCE_THRESHOLD = threshold_percent / 100.0
 
     subject_attendance_data = []
@@ -80,11 +83,18 @@ def upload_files():
 
     # Convert to DataFrame for HTML rendering
     result_df = pd.DataFrame(subject_attendance_data)
-
-    # Convert DataFrame to HTML table
     result_html = result_df.to_html(classes='table table-bordered table-striped', index=False)
 
     return render_template('index.html', result=result_html)
+
+# Route to download default holiday format
+@app.route('/download-default-holidays')
+def download_holiday_format():
+    return send_from_directory(
+        directory=os.path.join(app.root_path, 'static', 'data'),
+        path='holidays.xlsx',
+        as_attachment=True
+    )
 
 if __name__ == '__main__':
     app.run(debug=True)
