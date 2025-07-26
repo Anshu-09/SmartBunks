@@ -1,143 +1,100 @@
+# SmartBunks (Render Version)
 
-# 🎓 SmartBunks – Smart Attendance Calculator
-
-* SmartBunks** is a Flask-powered attendance analyzer that helps students calculate how many classes they can safely skip (aka *bunk*) while staying within the minimum required attendance percentage (default: 75%).
-
----
-
-## ✨ Features
-
-- 📅 Upload your weekly class schedule (Excel)
-- 📌 Add a list of semester holidays (Excel)
-- 🕓 Enter your semester start and end dates
-- ✅ Get total classes, required attendance, and allowed absents per subject
-- 📥 Download the output Excel report
+SmartBunks is an intelligent attendance calculator built with Flask. It allows users to upload their weekly schedule and optional holiday list to analyze attendance and determine how many classes they can bunk without falling below a given threshold.
 
 ---
 
-## 📁 Input File Formats
+## 🚀 Features
 
-### 1. `schedule.xlsx`
-
-A weekly class schedule. Each cell represents the subject for a slot.
-
-|        | Monday | Tuesday | Wednesday | Thursday | Friday |
-|--------|--------|---------|-----------|----------|--------|
-| Slot 1 | Maths  | Chem    | Phys      | ...      | ...    |
-| Slot 2 | ...    | ...     | ...       | ...      | ...    |
-
-> Empty cells mean no class for that slot.
-
-### 2. `holidays.xlsx`
-
-| Date       |
-|------------|
-| 2025-08-15 |
-| 2025-08-28 |
-| ...        |
-
-- Format: `YYYY-MM-DD`
-- List holidays that fall within the semester duration
+- Upload weekly subject schedule (Monday to Sunday)
+- Upload optional holiday Excel file
+- Set attendance threshold (e.g. 75%)
+- Auto-calculate the number of classes you can safely bunk
+- Returns a subject-wise attendance analysis
+- Hosted on **Render**
 
 ---
 
-## 🧠 Logic Behind the App
+## 🗂️ Folder Structure
 
-- Calculates how many weekdays exist between the semester start and end dates.
-- Subtracts holidays that fall on those weekdays.
-- Multiplies with subject frequency per weekday.
-- Computes:
-  - ✅ **Total Classes**
-  - 📉 **Minimum Required (75%)**
-  - 🚫 **Max Allowable Absents**
+```
+SmartBunks/
+├── static/
+│   └── data/
+│       └── holidays.xlsx        # Default holidays fallback file
+├── templates/
+│   └── index.html               # Frontend form and display
+├── uploads/                     # Stores uploaded holiday files
+├── app.py                       # Flask backend logic
+├── requirements.txt             # Python dependencies
+└── README.md
+```
 
 ---
 
-## 🚀 How to Run Locally
+## 🧪 Local Testing Instructions
 
-### 1. Clone the Repo
+### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername SmartBunks.git
+git clone https://github.com/your-username/SmartBunks.git
 cd SmartBunks
 ```
 
-### 2. Install Dependencies
+### 2. Set Up a Virtual Environment (Recommended)
+
+```bash
+python -m venv venv
+source venv/bin/activate       # On Windows use: venv\Scripts\activate
+```
+
+### 3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Or manually:
-
-```bash
-pip install flask pandas openpyxl numpy
-```
-
-### 3. Run the App
+### 4. Run the Flask App
 
 ```bash
 python app.py
 ```
 
-The server runs at: `http://localhost:5000`
+Flask will run locally on:  
+👉 `http://127.0.0.1:5000/`
 
 ---
 
-## 📬 Using Postman or Frontend
+## 📤 Deployment (Render)
 
-### Endpoint: `POST /analyze`
-
-**URL**: `http://localhost:5000/analyze`  
-**Body Type**: `form-data`
-
-| Key         | Type     | Description                        |
-|-------------|----------|------------------------------------|
-| schedule    | File     | Upload your `schedule.xlsx`        |
-| holidays    | File     | Upload your `holidays.xlsx`        |
-| start_date  | Text     | Format: `YYYY-MM-DD`               |
-| end_date    | Text     | Format: `YYYY-MM-DD`               |
-
-**Response**: Downloadable Excel file containing your attendance analysis.
+This project is already deployed on [smartbunks.onrender.com](https://smartbunks.onrender.com/)
 
 ---
 
-## 📤 Deployment (Free Hosting Options)
+## 📁 Input Format
 
-You can deploy SmartBunks online using:
+### Weekly Schedule
+Paste subject names for each weekday in separate textareas (comma-separated).
 
-- **Render**: Best for Flask with auto-redeploy
-- **Railway**: Easy GitHub integration
-- **Replit**: Good for quick demos
-- **Fly.io** or **Vercel (w/ adapter)**
+Example for Monday:
+```
+Maths,Physics,Chemistry
+```
 
-### Quick Deploy with Render:
+### Holiday File
+Upload an `.xlsx` file with a single column of dates (formatted as `DD-MM-YYYY`).
 
-1. Push this code to GitHub
-2. Go to [https://render.com](https://render.com)
-3. Click **"New Web Service"**
-4. Connect your GitHub, choose this repo
-5. Set Build Command: `pip install -r requirements.txt`
-6. Start Command: `python app.py`
-7. Done! Share your hosted link 🎉
+If you don't upload, default holidays from `static/data/holidays.xlsx` are used.
 
 ---
 
-## 📦 Output
+## 📊 Output
 
-The output is an Excel file like this:
+After submitting, you'll get a table showing:
 
-| Subject | TotalClasses | MinRequired | MaxAbsents |
-|---------|--------------|-------------|------------|
-| Maths   | 32           | 24          | 8          |
-| Chem    | 30           | 22          | 8          |
-| ...     | ...          | ...         | ...        |
-
----
-
-## 🔒 License
-
-MIT License — feel free to use, modify, and contribute!
+- Total classes per subject
+- Required classes (based on threshold)
+- Maximum bunkable classes
 
 ---
 

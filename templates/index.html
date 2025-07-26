@@ -19,14 +19,29 @@
         }
 
         .card {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            padding: 20px;
-            margin-bottom: 20px;
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* more lifted shadow */
+          padding: 20px;
+          margin-bottom: 20px;
         }
+
 
         textarea {
             resize: none;
         }
+        .row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.col-md-6 {
+    display: flex;
+    flex-direction: column;
+}
+
+.card.form-section {
+    flex: 1;
+}
+
 
         label {
             font-weight: 500;
@@ -40,6 +55,9 @@
             max-height: 500px;
             overflow-y: auto;
         }
+        .btn-primary {
+                width: 100%;
+            }
 
         @media (max-width: 768px) {
             body {
@@ -65,31 +83,34 @@
             .btn {
                 width: 100%;
             }
+            
             .form-section {
     overflow-y: auto;
     /* Remove or reduce this line: */
     /* max-height: 500px; */
          }
         .form-section {
-    max-height: 300px;
-    overflow-y: auto;
+         max-height: 800px;
+         overflow-y: auto;
          }
 
         }
     </style>
 </head>
 <body>
+    
     <div class="container">
-<h2 class="fw-bold text-orange text-center shadow-lg bg-white rounded py-3 px-4 mb-4">
-  SmartBunks Attendance Analyzer
-</h2>
-
-        <form action="/upload" method="post" enctype="multipart/form-data">
+        <h1 class="mb-3 text-center fw-bold" style=" font-weight: 800; text-shadow: 1px 1px 4px rgba(0,0,0,0.3);">
+  _Smart_Bunk_Analyzer_
+</h1><p class="mb-3 text-center fw-bold" style="font-weight: 300; margin-top: -10px;">by SmartBunks</p><br>
+    <form action="/upload" method="post" enctype="multipart/form-data">
             <div class="row">
                 <!-- Left card -->
                 <div class="col-md-6 mb-3">
                     <div class="card form-section">
-                        <h5 class="mb-3">Basic Info</h5>
+                        <h5 class="mb-3 text-center" style="text-shadow: 1px 1px 4px rgba(0,0,0,0.3);">
+  Basic Info
+</h5>
                         <div class="form-group">
                             <label for="start_date">Start Date</label>
                             <input type="date" class="form-control" id="start_date" name="start_date" required>
@@ -103,20 +124,22 @@
                             <input type="number" class="form-control" id="threshold" name="threshold" min="0" max="100" value="75" required>
                         </div>
                         <div class="form-group">
-                            <label>Upload Holidays Excel File (Optional)</label>
+                            <label>Upload Holidays Excel File (*Optional*)</label>
                             <input type="file" class="form-control-file" name="holidays">
                             <small class="form-text text-muted">
                             (Optional) <a href="/download-default-holidays" target="_blank">Download default holiday format</a>
                          </small>
-
-                        </div>
+                        </div><br>
+                        <div class="text-center mb-4">
+                <button type="submit" class="btn btn-primary px-4">Calculate Bunk Allowance</button>
+            </div>
                     </div>
                 </div>
 
                 <!-- Right card -->
                 <div class="col-md-6 mb-3">
                     <div class="card form-section">
-                        <h5 class="mb-3">Weekly Timetable</h5>
+                        <h5 class="mb-3 text-center" style="text-shadow: 1px 1px 4px rgba(0,0,0,0.3);">Weekly Timetable</h5>
                         <div class="form-group">
                             <label for="schedule_Monday">Monday</label>
                             <textarea class="form-control" name="schedule_Monday" rows="1" placeholder="e.g., Math, Physics"></textarea>
@@ -146,9 +169,9 @@
                 </div>
             </div>
 
-            <div class="text-center mb-4">
+            <!-- <div class="text-center mb-4">
                 <button type="submit" class="btn btn-primary px-4">Calculate Attendance</button>
-            </div>
+            </div> -->
         </form>
 
         {% if result %}
