@@ -65,12 +65,25 @@
             .btn {
                 width: 100%;
             }
+            .form-section {
+    overflow-y: auto;
+    /* Remove or reduce this line: */
+    /* max-height: 500px; */
+         }
+        .form-section {
+    max-height: 300px;
+    overflow-y: auto;
+         }
+
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2 class="text-center mb-4">SmartBunks Attendance Calculator</h2>
+<h2 class="fw-bold text-orange text-center shadow-lg bg-white rounded py-3 px-4 mb-4">
+  SmartBunks Attendance Analyzer
+</h2>
+
         <form action="/upload" method="post" enctype="multipart/form-data">
             <div class="row">
                 <!-- Left card -->
@@ -90,7 +103,7 @@
                             <input type="number" class="form-control" id="threshold" name="threshold" min="0" max="100" value="75" required>
                         </div>
                         <div class="form-group">
-                            <label>Upload Holidays Excel File</label>
+                            <label>Upload Holidays Excel File (Optional)</label>
                             <input type="file" class="form-control-file" name="holidays">
                             <small class="form-text text-muted">
                             (Optional) <a href="/download-default-holidays" target="_blank">Download default holiday format</a>
@@ -145,5 +158,48 @@
         </div>
         {% endif %}
     </div> 
+    <footer class="text-center py-3 mt-5 border-top" style="font-size: 0.95rem; color: #666;">
+  SmartBunks by <strong>Anshuman</strong>
+</footer>
+
+
+    <script>
+  // Store form inputs before unload
+  window.addEventListener('beforeunload', function () {
+    const formElements = document.querySelectorAll('input, textarea');
+    formElements.forEach(el => {
+      if (el.type !== 'file') {
+        localStorage.setItem(el.name || el.id, el.value);
+      }
+    });
+  });
+
+  // Restore form inputs only ONCE after refresh, then clear storage
+  window.addEventListener('DOMContentLoaded', function () {
+    const wasRestored = localStorage.getItem('wasRestored');
+    if (!wasRestored) {
+      const formElements = document.querySelectorAll('input, textarea');
+      formElements.forEach(el => {
+        if (el.type !== 'file') {
+          const stored = localStorage.getItem(el.name || el.id);
+          if (stored) el.value = stored;
+        }
+      });
+      localStorage.setItem('wasRestored', 'true');
+    } else {
+      // Clear everything except the flag
+      const keysToKeep = ['wasRestored'];
+      Object.keys(localStorage).forEach(key => {
+        if (!keysToKeep.includes(key)) {
+          localStorage.removeItem(key);
+        }
+      });
+      localStorage.removeItem('wasRestored'); // Reset flag
+    }
+  });
+</script>
+
+
+
 </body>
 </html>
