@@ -1,228 +1,216 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>SmartBunks Attendance Calculator</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    />
-    <style>
-        body {
-            background-color: #f4f6f8;
-            font-size: 15px;
-        }
+  <title>SmartBunks Attendance Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link
+    rel="stylesheet"
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+  />
+  <style>
+    body {
+      background-color: #f4f6f8;
+      font-size: 15px;
+    }
 
-        .container {
-            margin-top: 30px;
-            max-width: 1000px;
-        }
+    .container {
+      margin-top: 30px;
+      max-width: 1000px;
+    }
 
-        .card {
-          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* more lifted shadow */
-          padding: 20px;
-          margin-bottom: 20px;
-        }
+    .card {
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.304);
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+    }
 
+    textarea {
+      resize: none;
+    }
 
-        textarea {
-            resize: none;
-        }
-        .row {
-    display: flex;
-    flex-wrap: wrap;
-}
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+    }
 
-.col-md-6 {
-    display: flex;
-    flex-direction: column;
-}
+    .col-md-6 {
+      display: flex;
+      flex-direction: column;
+    }
 
-.card.form-section {
-    flex: 1;
-}
+    .card.form-section {
+      flex: 1;
+      overflow-y: visible;
+    }
 
+    label {
+      font-weight: 500;
+    }
 
-        label {
-            font-weight: 500;
-        }
+    h2, h5 {
+      font-weight: bold;
+    }
 
-        h2, h5 {
-            font-weight: bold;
-        }
+    .btn-primary {
+      width: 100%;
+    }
 
-        .form-section {
-            max-height: 500px;
-            overflow-y: auto;
-        }
-        .btn-primary {
-                width: 100%;
-            }
+    h1 {
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.489);
+    }
+    .form-left{
+      justify-content:space-between;
+    }
 
-        @media (max-width: 768px) {
-            body {
-                font-size: 14px;
-            }
+    @media (max-width: 768px) {
+      body {
+        font-size: 14px;
+      }
 
-            .card {
-                padding: 15px;
-            }
+      .card {
+        padding: 15px;
+      }
 
-            h2 {
-                font-size: 22px;
-            }
+      h2 {
+        font-size: 22px;
+      }
 
-            h5 {
-                font-size: 18px;
-            }
+      h5 {
+        font-size: 18px;
+      }
 
-            .form-group label {
-                font-size: 14px;
-            }
+      .form-group label {
+        font-size: 14px;
+      }
 
-            .btn {
-                width: 100%;
-            }
-            
-            .form-section {
-    overflow-y: auto;
-    /* Remove or reduce this line: */
-    /* max-height: 500px; */
-         }
-        .form-section {
-         max-height: 800px;
-         overflow-y: auto;
-         }
+      .btn {
+        width: 100%;
+      }
 
-        }
-    </style>
+      .form-section {
+        max-height: 800px;
+        overflow-y: auto;
+      }
+    }
+  </style>
 </head>
 <body>
-    
-    <div class="container">
-        <h1 class="mb-3 text-center fw-bold" style=" font-weight: 800; text-shadow: 1px 1px 4px rgba(0,0,0,0.3);">
-  _Smart_Bunk_Analyzer_
-</h1><p class="mb-3 text-center fw-bold" style="font-weight: 300; margin-top: -10px;">by SmartBunks</p><br>
+
+  <div class="container">
+    <h1 class="mb-3 text-center fw-bold glow-text" style=" font-weight: 800; margin-top: +10px; margin-bottom: 10px; ">
+      _Smart_Bunk_Analyzer_
+    </h1>
+    <p class="mb-3 text-center fw-bold" style="font-weight: 300; margin-top: -10px;">by SmartBunks</p><br>
+
     <form action="/upload" method="post" enctype="multipart/form-data">
-            <div class="row">
-                <!-- Left card -->
-                <div class="col-md-6 mb-3">
-                    <div class="card form-section">
-                        <h5 class="mb-3 text-center" style="text-shadow: 1px 1px 4px rgba(0,0,0,0.3);">
-  Basic Info
-</h5>
-                        <div class="form-group">
-                            <label for="start_date">Start Date</label>
-                            <input type="date" class="form-control" id="start_date" name="start_date" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="end_date">End Date</label>
-                            <input type="date" class="form-control" id="end_date" name="end_date" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="threshold">Attendance Threshold (%)</label>
-                            <input type="number" class="form-control" id="threshold" name="threshold" min="0" max="100" value="75" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Upload Holidays Excel File (*Optional*)</label>
-                            <input type="file" class="form-control-file" name="holidays">
-                            <small class="form-text text-muted">
-                            (Optional) <a href="/download-default-holidays" target="_blank">Download default holiday format</a>
-                         </small>
-                        </div><br>
-                        <div class="text-center mb-4">
-                <button type="submit" class="btn btn-primary px-4">Calculate Bunk Allowance</button>
+      <div class="row">
+        <!-- Left card -->
+        <div class="col-md-6 mb-3">
+          <div class="card form-section form-left">
+            <h5 class="mb-3 text-center" style="text-shadow: 1px 1px 4px rgba(0,0,0,0.3);">Basic Info</h5>
+            <div class="form-group">
+              <label for="start_date">Start Date</label>
+              <input type="date" class="form-control" id="start_date" name="start_date" required>
             </div>
-                    </div>
-                </div>
-
-                <!-- Right card -->
-                <div class="col-md-6 mb-3">
-                    <div class="card form-section">
-                        <h5 class="mb-3 text-center" style="text-shadow: 1px 1px 4px rgba(0,0,0,0.3);">Weekly Timetable</h5>
-                        <div class="form-group">
-                            <label for="schedule_Monday">Monday</label>
-                            <textarea class="form-control" name="schedule_Monday" rows="1" placeholder="e.g., Math, Physics"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="schedule_Tuesday">Tuesday</label>
-                            <textarea class="form-control" name="schedule_Tuesday" rows="1" placeholder="e.g., English, Chemistry"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="schedule_Wednesday">Wednesday</label>
-                            <textarea class="form-control" name="schedule_Wednesday" rows="1" placeholder="e.g., Biology, Lab"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="schedule_Thursday">Thursday</label>
-                            <textarea class="form-control" name="schedule_Thursday" rows="1" placeholder="e.g., Math, CS Lab"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="schedule_Friday">Friday</label>
-                            <textarea class="form-control" name="schedule_Friday" rows="1" placeholder="e.g., Physics, English"></textarea>
-                        </div>
-                        <div class="form-group">
-                        <label for="schedule_Saturday">Saturday</label>
-                         <textarea class="form-control" name="schedule_Saturday" rows="1" placeholder="e.g., Workshop, Seminar"></textarea>
-                        </div>
-
-                    </div>
-                </div>
+            <div class="form-group">
+              <label for="end_date">End Date</label>
+              <input type="date" class="form-control" id="end_date" name="end_date" required>
             </div>
-
-            <!-- <div class="text-center mb-4">
-                <button type="submit" class="btn btn-primary px-4">Calculate Attendance</button>
-            </div> -->
-        </form>
-
-        {% if result %}
-        <div class="card">
-            <h5 class="mb-3">Attendance Summary</h5>
-            {{ result|safe }}
+            <div class="form-group">
+              <label for="threshold">Attendance Threshold (%)</label>
+              <input type="number" class="form-control" id="threshold" name="threshold" min="0" max="100" value="75" placeholder="75" required>
+            </div>
+            <div class="form-group">
+              <label>Upload Holidays Excel File (*Optional*)</label>
+              <input type="file" class="form-control-file" name="holidays">
+              <small class="form-text text-muted">
+                (Optional) <a href="/download-default-holidays" target="_blank">Download default holiday format</a>
+              </small>
+            </div><br>
+            <div class="text-center mb-4">
+              <button type="submit" class="btn btn-primary px-4">Calculate Bunk Allowance</button>
+            </div>
+          </div>
         </div>
-        {% endif %}
-    </div> 
-    <footer class="text-center py-3 mt-5 border-top" style="font-size: 0.95rem; color: #666;">
-  SmartBunks by <strong>Anshuman</strong>
-</footer>
 
+        <!-- Right card -->
+        <div class="col-md-6 mb-3">
+          <div class="card form-section">
+            <h5 class="mb-3 text-center" style="text-shadow: 1px 1px 4px rgba(0,0,0,0.3);">Weekly Timetable</h5>
+            <div class="form-group">
+              <label for="schedule_Monday">Monday</label>
+              <textarea class="form-control" name="schedule_Monday" rows="1" placeholder="e.g., Math, Physics"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="schedule_Tuesday">Tuesday</label>
+              <textarea class="form-control" name="schedule_Tuesday" rows="1" placeholder="e.g., English, Chemistry"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="schedule_Wednesday">Wednesday</label>
+              <textarea class="form-control" name="schedule_Wednesday" rows="1" placeholder="e.g., Biology, Lab"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="schedule_Thursday">Thursday</label>
+              <textarea class="form-control" name="schedule_Thursday" rows="1" placeholder="e.g., Math, CS Lab"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="schedule_Friday">Friday</label>
+              <textarea class="form-control" name="schedule_Friday" rows="1" placeholder="e.g., Physics, English"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="schedule_Saturday">Saturday</label>
+              <textarea class="form-control" name="schedule_Saturday" rows="1" placeholder="e.g., Workshop, Seminar"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
 
-    <script>
-  // Store form inputs before unload
-  window.addEventListener('beforeunload', function () {
-    const formElements = document.querySelectorAll('input, textarea');
-    formElements.forEach(el => {
-      if (el.type !== 'file') {
-        localStorage.setItem(el.name || el.id, el.value);
-      }
-    });
-  });
+    {% if result %}
+    <div class="card">
+      <h5 class="mb-3">Attendance Summary</h5>
+      {{ result|safe }}
+    </div>
+    {% endif %}
+  </div>
 
-  // Restore form inputs only ONCE after refresh, then clear storage
-  window.addEventListener('DOMContentLoaded', function () {
-    const wasRestored = localStorage.getItem('wasRestored');
-    if (!wasRestored) {
+  <footer class="text-center py-3 mt-5 border-top" style="font-size: 0.95rem; color: #666;">
+    SmartBunks by <strong>Anshuman</strong>
+  </footer>
+
+  <!-- JS for saving form inputs -->
+  <script>
+    window.addEventListener('beforeunload', function () {
       const formElements = document.querySelectorAll('input, textarea');
       formElements.forEach(el => {
         if (el.type !== 'file') {
-          const stored = localStorage.getItem(el.name || el.id);
-          if (stored) el.value = stored;
+          localStorage.setItem(el.name || el.id, el.value);
         }
       });
-      localStorage.setItem('wasRestored', 'true');
-    } else {
-      // Clear everything except the flag
-      const keysToKeep = ['wasRestored'];
-      Object.keys(localStorage).forEach(key => {
-        if (!keysToKeep.includes(key)) {
-          localStorage.removeItem(key);
-        }
-      });
-      localStorage.removeItem('wasRestored'); // Reset flag
-    }
-  });
-</script>
+    });
 
-
-
+    window.addEventListener('DOMContentLoaded', function () {
+      const wasRestored = localStorage.getItem('wasRestored');
+      if (!wasRestored) {
+        const formElements = document.querySelectorAll('input, textarea');
+        formElements.forEach(el => {
+          if (el.type !== 'file') {
+            const stored = localStorage.getItem(el.name || el.id);
+            if (stored) el.value = stored;
+          }
+        });
+        localStorage.setItem('wasRestored', 'true');
+      } else {
+        const keysToKeep = ['wasRestored'];
+        Object.keys(localStorage).forEach(key => {
+          if (!keysToKeep.includes(key)) {
+            localStorage.removeItem(key);
+          }
+        });
+        localStorage.removeItem('wasRestored');
+      }
+    });
+  </script>
 </body>
 </html>
