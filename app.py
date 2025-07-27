@@ -24,7 +24,7 @@ def upload_files():
         key = f'schedule_{day}'
         subjects_str = request.form.get(key, '')
         schedule_inputs[key] = subjects_str
-        subjects = [s.strip() for s in subjects_str.split(',') if s.strip()]
+        subjects = [s.strip().upper() for s in subjects_str.split(',') if s.strip()]
         schedule_df[day] = subjects
 
     # Load holidays
