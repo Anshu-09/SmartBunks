@@ -1,0 +1,274 @@
+/* ---------------------- Global Base Styles ---------------------- */
+
+body {
+   /* Works on most browsers except Firefox */
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #000000;
+  color: #f0f6fc;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.colbtn{
+  color: #585858;
+}
+.colbtn:hover{
+  color: #ffffff;
+}
+
+
+.collapsible-dark-card {
+  background-color: #0d1117; /* dark card background */
+  border-left: 4px solid #00c3ff; /* accent border */
+  color: #f1f5f9; /* light text */
+  border-radius: 12px;
+  padding: 25px 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.collapsible-dark-card ul li {
+  margin-bottom: 8px;
+  position: relative;
+  padding-left: 1.5em;
+}
+
+.collapsible-dark-card ul li::before {
+  content: "✔";
+  position: absolute;
+  left: 0;
+  color: #d9f99d; /* lemon/yellow-green */
+  font-weight: bold;
+}
+
+.collapsible-dark-card .highlight {
+  color: #facc15; /* Lemon yellow */
+  font-weight: 500;
+}
+
+
+
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+h1, h5 {
+  text-shadow: none;
+  color: #f0f6fc;
+}
+
+/* ---------------------- Hero Section ---------------------- */
+.hero-section {
+  background-color: #000;
+  min-height: 100vh;
+  padding: 80px 0;
+}
+
+.hero-section h1 {
+  font-size: 3rem;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.hero-section p {
+  color: #bfbfbf;
+}
+
+.hero-section a.btn-success {
+  background-color: #1db954;
+  border: none;
+}
+.hero-section a.btn-success:hover {
+  background-color: #1ed760;
+}
+
+@media (max-width: 767px) {
+  .hero-section {
+    text-align: center;
+    padding: 60px 20px;
+  }
+  .hero-section .col-lg-6 {
+    margin-bottom: 30px;
+  }
+}
+
+/* ---------------------- Container & Form ---------------------- */
+.container {
+  padding: 60px 20px;
+  max-width: 1100px;
+}
+
+#forms {
+  scroll-margin-top: 80px;
+}
+
+.gl-text{
+  text-shadow: 1px 1px 10px #bfbfbf;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 25px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:1px 1px 20px#c9d1d94c;
+}
+
+.glow-text {
+  color: #ffffff;
+  text-shadow: none;
+}
+
+/* ---------------------- Inputs & Textareas ---------------------- */
+input.form-control,
+textarea.form-control,
+input[type="file"] {
+  background-color: rgba(30, 30, 40, 0.25);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px 14px;
+  width: 100%;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: border 0.2s ease-in-out;
+}
+
+textarea.form-control {
+  resize: none;
+  font-size: 14px;
+}
+
+input.form-control::placeholder,
+textarea.form-control::placeholder {
+  color: #cccccc;
+}
+
+input.form-control:focus,
+textarea.form-control:focus {
+  outline: none;
+  border: 1px solid #666;
+  box-shadow: none;
+}
+
+/* Labels */
+label {
+  font-weight: 500;
+  color: #c9d1d9;
+}
+
+/* ---------------------- Buttons ---------------------- */
+.btn-primary {
+  background-color: #ffffff;
+  border-color: #ffffff;
+  color: #000;
+  border-radius: 25px;
+  padding: 8px 20px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary:hover {
+  background-color: #dddddd;
+  border-color: #dddddd;
+}
+
+.btn-outline-primary {
+  border-color: #cccccc;
+  color: #cccccc;
+  border-radius: 25px;
+  padding: 8px 20px;
+  font-weight: 600;
+}
+
+.btn-outline-primary:hover {
+  background-color: #cccccc;
+  color: #000;
+}
+
+/* ---------------------- Attendance Summary Card ---------------------- */
+.glass-card {
+  background: rgba(40, 40, 50, 0.15);
+  box-shadow: none;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  color: #ffffff;
+  box-shadow:1px 1px 20px#c9d1d94c;
+}
+
+/* Table styles */
+.glass-table table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(20, 20, 30, 0.2);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+}
+
+.glass-table th {
+  background: rgba(30, 30, 40, 0.5);
+  color: #ffffff;
+  padding: 12px 16px;
+  font-weight: 600;
+  border-color: #30363d;
+
+}
+
+.glass-table td {
+  padding: 12px 16px;
+  color: #ffffff;
+  background: rgba(30, 30, 40, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.144); /* softer line */
+  border-top: 1px solid rgba(255, 255, 255, 0.144); /* softer line */
+  border-right: 1px solid rgba(255, 255, 255, 0.144); /* softer line */
+}
+
+.glass-table tr:nth-child(even) td {
+  background: rgba(20, 20, 30, 0.3);
+}
+
+.glass-table td:last-child,
+.glass-table th:last-child {
+  border-right:none;
+  border-left:none;
+}
+
+/* ---------------------- Footer ---------------------- */
+footer {
+  color: #8b949e;
+  border-color: #30363d;
+  font-size: 0.95rem;
+}
+
+/* ---------------------- Responsive Layout ---------------------- */
+@media (min-width: 768px) {
+  .row.equal-columns {
+    display: flex;
+    gap: 20px;
+  }
+
+  .row.equal-columns > .col-md-6 {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 767px) {
+  .card {
+    padding: 20px;
+  }
+}
