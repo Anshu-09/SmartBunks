@@ -156,16 +156,23 @@
             </div>
             <div class="form-group">
               <label for="threshold">Attendance Threshold (%)</label>
-<input type="number" class="form-control" id="threshold" name="threshold" min="0" max="100" value="{{ threshold or 75 }}" placeholder="75" required>
+<input type="number" step="any" class="form-control" id="threshold" name="threshold" min="0" max="100.0" value="{{ threshold or 75 }}" placeholder="75" required>
             </div>
             <div class="form-group">
-              <label>*Optional* Custom Holidays File ( <span class="" style="font-weight: 100; font-size:small;">Default file: National Holidays</span> )</label>
-              <input type="file" class="form-control-file" name="holidays" placeholder="Default National Holidays Chosen">
+              <!-- <label>Custom Holidays File ( <span class="" style="font-weight: 100; font-size:small;">Default file: National Holidays</span> )</label> -->
+               <label>
+  Custom Holidays(<span style="font-weight: 400; font-size: 0.85em; color: #888;">*Optional</span>)
+  <p style="font-weight: 400; font-size: 0.85em; color: #971804;">
+    (If no custom file uploaded then Default: National Holidays)
+  </p>
+</label>
+
+              <input type="file" class="form-control-file" name="holidays" placeholder="Default National Holidays Chosen" style="margin-top: -15px;">
               <small class="form-text text-primary">
-                (Optional) <a href="/download-default-kiit-holidays" target="_blank">KIIT Holiday Format</a>
+                <a href="/download-default-kiit-holidays" target="_blank">Download KIIT-Holiday-List</a>
               </small>
               <small class="form-text text-primary">
-                (Optional) <a href="/download-default-holidays" target="_blank">Download/Edit Default file</a>
+                <a href="/download-default-holidays" target="_blank">Download Default-list, edit according to your institution and upload.</a>
               </small>
             </div><br>
             <div class="text-center mb-4">
@@ -176,7 +183,7 @@
       </div>
     </form>
 
-   {% if result %}
+      {% if result %}
 <div class="card glass-card" id="attendance-summary">
   <h5 class="mb-3 glow-text">Attendance Summary</h5>
   <div class="glass-table">

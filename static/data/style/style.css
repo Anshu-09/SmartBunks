@@ -255,6 +255,8 @@ footer {
 
 /* ---------------------- Responsive Layout ---------------------- */
 @media (min-width: 768px) {
+
+
   .row.equal-columns {
     display: flex;
     gap: 20px;
