@@ -20,6 +20,10 @@ body {
 .colbtn:hover{
   color: #ffffff;
 }
+.navbar{
+  box-shadow:0px 0px 15px  #ffffff37;
+  background-color: #0b0b0bd6;
+}
 
 
 .collapsible-dark-card {
