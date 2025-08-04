@@ -6,8 +6,7 @@ import os
 app = Flask(__name__)
 
 # ------------------------------------------------------------------ #
-# Routes
-# ------------------------------------------------------------------ #
+# Routes #
 @app.route("/", methods=["GET"])
 def index():
     """Landing page or refreshed page with no result."""
@@ -15,7 +14,7 @@ def index():
 
 @app.route("/upload", methods=["POST"])
 def upload_files():
-    # ---------- 1.  Read form data ------------------------------------------------
+    #Read form data ------------------------------------------------
     start_date  = request.form.get("start_date")
     end_date    = request.form.get("end_date")
     threshold   = float(request.form.get("threshold", 75))
@@ -31,7 +30,7 @@ def upload_files():
             s.strip().upper() for s in subjects_str.split(",") if s.strip()
         ]
 
-    # ---------- 2.  Holiday file (user or default) -------------------------------
+    #Holiday file (user or default) -------------------------------
     holidays_file = request.files.get("holidays")
     if holidays_file and holidays_file.filename:
         holidays_df = pd.read_excel(holidays_file)
@@ -39,7 +38,7 @@ def upload_files():
         default_path = os.path.join("static", "data", "holidays.xlsx")
         holidays_df = pd.read_excel(default_path)
 
-    # ---------- 3.  Holiday + calendar maths ------------------------------------
+    # Holiday + calendar maths ------------------------------------
     holidays_df["Date"] = pd.to_datetime(holidays_df["Date"])
     holidays_df = holidays_df[
         (holidays_df["Date"] >= pd.to_datetime(start_date))
@@ -56,7 +55,7 @@ def upload_files():
         for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
     }
 
-    # ---------- 4.  Subject attendance maths -------------------------------------
+    # - 4.  Subject attendance maths
     subject_weekday_cnt = {}
     for day, subjects in schedule_df.items():
         for sbj in subjects:
@@ -71,16 +70,16 @@ def upload_files():
         total = sum(cnt * effective_weekdays.get(day, 0) for day, cnt in day_map.items())
         min_req = int(np.ceil(total * ATT_THRESH))
         rows.append(
-            dict(Subject=sbj, TotalClasses=total, MinRequired=min_req, MaxAbsents=total - min_req)
+            dict(Subject=sbj, TotalClasses=total, DaysToAttend=min_req, AbsentsAllowed=total - min_req)
         )
 
     result_html = (
         pd.DataFrame(rows)
         .sort_values("Subject")
-        .to_html(classes="table table-bordered table-striped", index=False)
+        .to_html(classes="table table-bordered table-striped",index=False)
     )
 
-    # ---------- 5.  Render same page, but flag auto_scroll=True ------------------
+    #-- 5.  Render same page, but flag auto_scroll=True --
     return render_template(
         "index.html",
         result=result_html,

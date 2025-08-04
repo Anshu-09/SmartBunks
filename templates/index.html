@@ -7,7 +7,6 @@
     rel="stylesheet"
     href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
   />
-  <!-- In <head> -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="/static/data/style/style.css">
 
@@ -40,16 +39,21 @@
 
 
 
-<!--Landing Section -->
+<!--Landing/Hero Section -->
 <section class="hero-section d-flex align-items-center" id="home">
 
 
   <div class="container text-white text-center text-lg-start">
     <div class="row align-items-center">
       <div class="col-lg-6">
-        <h1 class="display-4 fw-bold mb-3">SmartBunks</h1>
+        <h1 class="display-4 fw-bold mb-3" id="sb">SmartBunks</h1>
         <p class="lead mb-4">Plan your leaves smartly. Stay above your attendance threshold.</p>
         <a href="#headform" class="btn btn-success btn-lg">Let’s Bunk!</a>
+
+         <a href="#col-gap" class="colbtn"><button class="btn colbtn mb-4 btn-outline-info btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#workingCollapse" aria-expanded="false" aria-controls="workingCollapse">
+      📘 Understand the working
+    </button></a>
+
         <!-- <div class="mt-4 d-flex justify-content-center justify-content-lg-start gap-3">
           <a href="#headform" class="text-white text-decoration-none small">Explore Features</a>
           <a href="#attendance-summary" class="text-white text-decoration-none small">View Summary</a>
@@ -57,22 +61,19 @@
       </div>
 <div class="col-lg-6 text-center">
         <img src="/static/data/images/herosec.png" alt="Attendance Illustration" class="herosec img-fluid rounded shadow" style="max-height: 400px;" />
-        <!-- Collapsible Trigger -->
-    <a href="#workingCollapse" class="colbtn"><button class="btn colbtn mb-4" type="button" data-bs-toggle="collapse" data-bs-target="#workingCollapse" aria-expanded="false" aria-controls="workingCollapse">
-      📘 Click to understand the working
-    </button></a>
+     
 
-
-<!-- Collapsible Content -->
+<!-- Collapse Content -->
+ <div id="col-gap" style="margin-bottom: +50px;"><br></div><br>
     <div class="collapse" id="workingCollapse">
       <div class="card card-body collapsible-dark-card  text-start mx-auto" style="max-width: 700px; margin-top: +20px;">
         <p class="mb-3 fw-lighter ">
           Just input your weekly timetable (which subjects you have on each weekday), select your session's start and end dates, and set the attendance threshold (e.g., 75%). SmartBunks will instantly calculate:
         </p>
         <ul class="list-unstyled mb-4 fw-light">
-          <li>✅ Total number of classes expected in the session per subject</li>
-          <li>✅ Minimum required attendance to stay above the threshold</li>
-          <li>✅ Maximum number of leaves you can safely take</li>
+          <li>Total number of classes expected in the session per subject</li>
+          <li>Minimum required attendance to stay above the threshold</li>
+          <li>Maximum number of leaves you can safely take</li>
         </ul>
 
         <hr>
@@ -80,7 +81,7 @@
         <p><b>Example:</b></p>
         <p>
           Let’s say you select a session from <b>August 1 to November 30</b>, with a <b>75% attendance threshold</b>.<br>
-          SmartBunks calculates that you'll have <b>40 lectures of Subject X</b> during this period.
+          <br>SmartBunks calculates that you'll have <b>40 lectures of Subject X</b> during this period.
         </p>
         <p>
           To maintain 75% attendance, you need to attend at least <b>30 lectures</b>. So, you can take up to <b>10 leaves</b>.
@@ -159,7 +160,6 @@
 <input type="number" step="any" class="form-control" id="threshold" name="threshold" min="0" max="100.0" value="{{ threshold or 75 }}" placeholder="75" required>
             </div>
             <div class="form-group">
-              <!-- <label>Custom Holidays File ( <span class="" style="font-weight: 100; font-size:small;">Default file: National Holidays</span> )</label> -->
                <label>
   Custom Holidays(<span style="font-weight: 400; font-size: 0.85em; color: #888;">*Optional</span>)
   <p style="font-weight: 400; font-size: 0.85em; color: #971804;">
@@ -199,7 +199,7 @@
 
   
   <script>  
-  // Auto-scroll to summary if it exists
+  // Auto-scroll to summary 
   window.addEventListener('DOMContentLoaded', function () {
     const summary = document.getElementById('attendance-summary');
     if (summary) {
@@ -207,7 +207,7 @@
     }
   });
 
-  // JS for saving form inputs 
+  // JS saving form inputs 
     window.addEventListener('beforeunload', function () {
       const formElements = document.querySelectorAll('input, textarea');
       formElements.forEach(el => {
@@ -249,7 +249,7 @@
 </script>
 {% endif %}
 <script>
-  // Activate nav item on click
+  // Activate nav items
   document.addEventListener("DOMContentLoaded", function () {
     const navLinks = document.querySelectorAll(".navbar-nav .nav-link");
 
@@ -300,6 +300,39 @@
     }
   });
 </script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const collapseBtn = document.querySelector(".colbtn button");
+    const collapseTarget = document.getElementById("workingCollapse");
+    const heroSection = document.getElementById("home");
+
+    collapseTarget.addEventListener("hidden.bs.collapse", function () {
+      //scroll back to top section
+      heroSection.scrollIntoView({ behavior: "smooth" });
+    });
+  });
+</script>
+
+<script>
+  document.addEventListener("click", function (event) {
+    const collapse = document.getElementById("workingCollapse");
+    const button = document.querySelector(".colbtn button");
+
+    const isClickInsideCollapse = collapse.contains(event.target);
+    const isClickOnButton = button.contains(event.target);
+
+    // If click is outside both collapse and button, and collapse is open
+    if (!isClickInsideCollapse && !isClickOnButton && collapse.classList.contains("show")) {
+      const bsCollapse = bootstrap.Collapse.getInstance(collapse);
+      if (bsCollapse) {
+        bsCollapse.hide(); // Collapse it
+      }
+    }
+  });
+</script>
+
+
 
 
 </body>

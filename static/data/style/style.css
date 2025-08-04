@@ -1,7 +1,6 @@
-/* ---------------------- Global Base Styles ---------------------- */
+/*Global */
 
 body {
-   /* Works on most browsers except Firefox */
 }
 
 body {
@@ -15,8 +14,12 @@ body {
 }
 
 .colbtn{
-  color: #585858;
+
+  margin-top: +25px;
+  margin-left: +7px;
+  color: #0096c0;
 }
+
 .colbtn:hover{
   color: #ffffff;
 }
@@ -67,7 +70,7 @@ h1, h5 {
   color: #f0f6fc;
 }
 
-/* ---------------------- Hero Section ---------------------- */
+/* - Hero Section - */
 .hero-section {
   background-color: #000;
   min-height: 100vh;
@@ -102,7 +105,7 @@ h1, h5 {
   }
 }
 
-/* ---------------------- Container & Form ---------------------- */
+/* -- Container & Form -- */
 .container {
   padding: 60px 20px;
   max-width: 1100px;
@@ -131,7 +134,7 @@ h1, h5 {
   text-shadow: none;
 }
 
-/* ---------------------- Inputs & Textareas ---------------------- */
+/* Inputs & Textareas */
 input.form-control,
 textarea.form-control,
 input[type="file"] {
@@ -169,7 +172,7 @@ label {
   color: #c9d1d9;
 }
 
-/* ---------------------- Buttons ---------------------- */
+/* Butns  */
 .btn-primary {
   background-color: #ffffff;
   border-color: #ffffff;
@@ -198,7 +201,7 @@ label {
   color: #000;
 }
 
-/* ---------------------- Attendance Summary Card ---------------------- */
+/*  Attendance Summary Card */
 .glass-card {
   background: rgba(40, 40, 50, 0.15);
   box-shadow: none;
@@ -211,7 +214,7 @@ label {
   box-shadow:1px 1px 20px#c9d1d94c;
 }
 
-/* Table styles */
+/* Table */
 .glass-table table {
   width: 100%;
   border-collapse: collapse;
@@ -223,6 +226,7 @@ label {
 }
 
 .glass-table th {
+  text-align: center;
   background: rgba(30, 30, 40, 0.5);
   color: #ffffff;
   padding: 12px 16px;
@@ -232,6 +236,7 @@ label {
 }
 
 .glass-table td {
+  text-align: center;
   padding: 12px 16px;
   color: #ffffff;
   background: rgba(30, 30, 40, 0.2);
@@ -250,14 +255,14 @@ label {
   border-left:none;
 }
 
-/* ---------------------- Footer ---------------------- */
+/* - Footer - */
 footer {
   color: #8b949e;
   border-color: #30363d;
   font-size: 0.95rem;
 }
 
-/* ---------------------- Responsive Layout ---------------------- */
+/* -- Responsivity -- */
 @media (min-width: 768px) {
 
 
