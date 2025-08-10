@@ -1,7 +1,10 @@
 Flask
-gunicorn
-pandas
+flask_sqlalchemy
 numpy
+pandas
+python_bcrypt
+SQLAlchemy
+gunicorn
 openpyxl
 fuzzywuzzy
 python-Levenshtein

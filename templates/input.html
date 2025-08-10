@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+      <link
+    rel="stylesheet"
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+  />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/static/data/style/style.css">
+
+</head>
+<body>
+      <div class="container" id="forms">
+    <h1 class="mb-3 text-center fw-bold gl-text" style=" font-weight: 800; margin-top: +10px; margin-bottom: 10px; padding-top: 50px;" id="headform">
+      SmartBunk Analyzer
+    </h1>
+    <p class="mb-3 text-center fw-light" style=" font-size: small; margin-top: -15px; color: #85858591;">by SmartBunks</p><br>
+
+    <form action="/upload" method="post" enctype="multipart/form-data">
+      <div class="row equal-columns" id="forms-sec">
+        
+        <!-- First card -->
+        <div class="col-md-6 mb-3">
+          <div class="card form-section">
+            <h5 class="mb-3 text-center fw-bold glow-text" >Weekly Timetable</h5>
+            <div class="form-group">
+              <label for="schedule_Monday">Monday</label>
+<textarea spellcheck="false" class="form-control" name="schedule_Monday" rows="1" placeholder="e.g., Math, Physics">{{ schedule_Monday or '' }}</textarea>
+            </div>
+            <div class="form-group">
+              <label for="schedule_Tuesday">Tuesday</label>
+              <textarea spellcheck="false" class="form-control" name="schedule_Tuesday" rows="1" placeholder="e.g., English, Chemistry">{{ schedule_Tuesday or '' }}</textarea>
+            </div>
+            <div class="form-group">
+              <label for="schedule_Wednesday">Wednesday</label>
+              <textarea spellcheck="false" class="form-control" name="schedule_Wednesday" rows="1" placeholder="e.g., Biology, Lab">{{ schedule_Wednesday or '' }}</textarea>
+            </div>
+            <div class="form-group">
+              <label for="schedule_Thursday">Thursday</label>
+              <textarea spellcheck="false" class="form-control" name="schedule_Thursday" rows="1" placeholder="e.g., Math, CS Lab">{{ schedule_Thursday or '' }}</textarea>
+            </div>
+            <div class="form-group">
+              <label for="schedule_Friday">Friday</label>
+              <textarea spellcheck="false" class="form-control" name="schedule_Friday" rows="1" placeholder="e.g., Physics, English">{{ schedule_Friday or '' }}</textarea>
+            </div>
+            <div class="form-group">
+              <label for="schedule_Saturday">Saturday</label>
+              <textarea spellcheck="false" class="form-control" name="schedule_Saturday" rows="1" placeholder="e.g., Workshop, Seminar">{{ schedule_Saturday or '' }}</textarea>
+            </div>
+          </div>
+        </div>
+
+
+        <!--  Second card -->
+        <div class="col-md-6 mb-3">
+          <div class="card form-section form-left">
+            <h5 class="mb-3 text-center fw-bold glow-text" >Basic Info</h5>
+            <div class="form-group">
+              <label for="start_date">Start Date</label>
+              <input type="date" class="form-control" id="start_date" name="start_date" value="{{ start_date or '' }}" required>
+            </div>
+            <div class="form-group">
+              <label for="end_date">End Date</label>
+<input type="date" class="form-control" id="end_date" name="end_date" value="{{ end_date or '' }}" required>
+            </div>
+            <div class="form-group">
+              <label for="threshold">Attendance Threshold (%)</label>
+<input type="number" step="any" class="form-control" id="threshold" name="threshold" min="0" max="100.0" value="{{ threshold or 75 }}" placeholder="75" required>
+            </div>
+            <div class="form-group">
+               <label>
+  Custom Holidays(<span style="font-weight: 400; font-size: 0.85em; color: #888;">*Optional</span>)
+  <p style="font-weight: 400; font-size: 0.85em; color: #971804;">
+    (If no custom file uploaded then Default: National Holidays)
+  </p>
+</label>
+
+              <input type="file" class="form-control-file" name="holidays" placeholder="Default National Holidays Chosen" style="margin-top: -15px;">
+              <small class="form-text text-primary">
+                <a href="/download-default-kiit-holidays" target="_blank">Download KIIT-Holiday-List</a>
+              </small>
+              <small class="form-text text-primary">
+                <a href="/download-default-holidays" target="_blank">Download Default-list, edit according to your institution and upload.</a>
+              </small>
+            </div><br>
+            <div class="text-center mb-4">
+              <button type="submit" class="btn btn-success btn- px-4">Calculate Bunk Allowance</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+
+      {% if result %}
+<div class="card glass-card" id="attendance-summary">
+  <h5 class="mb-3 glow-text">Attendance Summary</h5>
+  <div class="glass-table">
+    {{ result|safe }}
+  </div>
+</div>
+{% endif %}
+
+</body>
+</html>
